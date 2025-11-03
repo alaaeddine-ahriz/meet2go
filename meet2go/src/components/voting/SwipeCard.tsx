@@ -1,0 +1,211 @@
+import React from 'react';
+import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+  interpolate,
+} from 'react-native-reanimated';
+import { colors, spacing, typography } from '@/src/constants/theme';
+import { SWIPE_THRESHOLD, CARD_ROTATION } from '@/src/constants/gestures';
+import { VoteType } from '@/src/types';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+interface SwipeCardProps {
+  optionName: string;
+  imageUrl?: string;
+  onSwipe: (voteType: VoteType) => void;
+  index: number;
+}
+
+export function SwipeCard({ optionName, imageUrl, onSwipe, index }: SwipeCardProps) {
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const isDragging = useSharedValue(false);
+
+  const handleSwipeEnd = (voteType: VoteType) => {
+    'worklet';
+    runOnJS(onSwipe)(voteType);
+  };
+
+  const panGesture = Gesture.Pan()
+    .onBegin(() => {
+      isDragging.value = true;
+    })
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
+    })
+    .onEnd((event) => {
+      const { translationX, translationY, velocityX, velocityY } = event;
+
+      // Determine vote type based on translation
+      let voteType: VoteType | null = null;
+
+      // Check vertical swipe first (up for "amazing")
+      if (translationY < -SWIPE_THRESHOLD && Math.abs(velocityY) > 300) {
+        voteType = 'amazing';
+        translateY.value = withSpring(-SCREEN_HEIGHT, {}, () => {
+          if (voteType) handleSwipeEnd(voteType);
+        });
+        translateX.value = withSpring(0);
+      }
+      // Check horizontal swipes
+      else if (translationX > SWIPE_THRESHOLD && velocityX > 0) {
+        voteType = 'works';
+        translateX.value = withSpring(SCREEN_WIDTH, {}, () => {
+          if (voteType) handleSwipeEnd(voteType);
+        });
+        translateY.value = withSpring(0);
+      } else if (translationX < -SWIPE_THRESHOLD && velocityX < 0) {
+        voteType = 'doesnt_work';
+        translateX.value = withSpring(-SCREEN_WIDTH, {}, () => {
+          if (voteType) handleSwipeEnd(voteType);
+        });
+        translateY.value = withSpring(0);
+      } else {
+        // Snap back if threshold not met
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      }
+
+      isDragging.value = false;
+    });
+
+  const animatedCardStyle = useAnimatedStyle(() => {
+    const rotation = interpolate(
+      translateX.value,
+      [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      [-CARD_ROTATION, 0, CARD_ROTATION]
+    );
+
+    const scale = isDragging.value ? 0.95 : 1;
+
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { rotate: `${rotation}deg` },
+        { scale },
+      ],
+    };
+  });
+
+  const animatedOverlayStyle = useAnimatedStyle(() => {
+    const opacity = Math.abs(translateX.value) / SWIPE_THRESHOLD;
+    
+    // Determine overlay color
+    let backgroundColor = 'transparent';
+    if (translateY.value < -SWIPE_THRESHOLD / 2) {
+      backgroundColor = colors.gold; // Amazing
+    } else if (translateX.value > SWIPE_THRESHOLD / 2) {
+      backgroundColor = colors.success; // Works
+    } else if (translateX.value < -SWIPE_THRESHOLD / 2) {
+      backgroundColor = colors.error; // Doesn't work
+    }
+
+    return {
+      backgroundColor,
+      opacity: Math.min(opacity * 0.6, 0.6),
+    };
+  });
+
+  const animatedEmojiStyle = useAnimatedStyle(() => {
+    const show = Math.abs(translateX.value) > SWIPE_THRESHOLD / 2 || 
+                 translateY.value < -SWIPE_THRESHOLD / 2;
+    
+    return {
+      opacity: show ? 1 : 0,
+      transform: [{ scale: show ? 1 : 0.5 }],
+    };
+  });
+
+  const getEmoji = () => {
+    'worklet';
+    if (translateY.value < -SWIPE_THRESHOLD / 2) return '😍';
+    if (translateX.value > SWIPE_THRESHOLD / 2) return '✅';
+    if (translateX.value < -SWIPE_THRESHOLD / 2) return '❌';
+    return '';
+  };
+
+  return (
+    <GestureDetector gesture={panGesture}>
+      <Animated.View style={[styles.card, animatedCardStyle]}>
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+        ) : (
+          <View style={styles.imagePlaceholder} />
+        )}
+        
+        <Animated.View style={[styles.overlay, animatedOverlayStyle]} />
+        
+        <View style={styles.textContainer}>
+          <Text style={styles.optionName}>{optionName}</Text>
+        </View>
+
+        <Animated.Text style={[styles.emoji, animatedEmojiStyle]}>
+          {getEmoji()}
+        </Animated.Text>
+      </Animated.View>
+    </GestureDetector>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    width: SCREEN_WIDTH - spacing.xl * 2,
+    height: SCREEN_HEIGHT * 0.6,
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    overflow: 'hidden',
+    ...{
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    backgroundColor: colors.border,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  textContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: spacing.xl,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  optionName: {
+    ...typography.title,
+    fontSize: 36,
+    color: colors.surface,
+    textAlign: 'center',
+  },
+  emoji: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginLeft: -50,
+    marginTop: -50,
+    fontSize: 100,
+    textAlign: 'center',
+  },
+});
+
+
