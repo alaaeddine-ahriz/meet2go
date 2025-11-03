@@ -9,16 +9,29 @@ export function useAuth() {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        // Clear any bad session (e.g., invalid refresh token)
+        supabase.auth.signOut().finally(() => {
+          setSession(null as any);
+          setLoading(false);
+        });
+      } else {
+        setSession(data.session);
+        setLoading(false);
+      }
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // On sign-out or token failure we reset state
+      if (event === 'SIGNED_OUT' || !session) {
+        setSession(null as any);
+      } else {
+        setSession(session);
+      }
       setLoading(false);
     });
 

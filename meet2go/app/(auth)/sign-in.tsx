@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { Link } from 'expo-router';
 import * as Linking from 'expo-linking';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/hooks/useAuth';
 import { Button } from '@/src/components/ui/Button';
@@ -42,16 +44,31 @@ export default function SignInScreen() {
   const handleGoogleSignIn = async () => {
     try {
       setOauthLoading(true);
-      const redirectTo = Linking.createURL('/');
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Ensure auth session can complete on iOS
+      WebBrowser.maybeCompleteAuthSession();
+
+      // For Expo Go, proxy works more reliably; custom scheme also supported
+      const redirectTo = AuthSession.makeRedirectUri({
+        scheme: 'meet2go',
+        useProxy: true,
+        preferLocalhost: false,
+      });
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo,
-          skipBrowserRedirect: false,
+          skipBrowserRedirect: true,
         },
       });
-      if (error) {
-        throw error;
+
+      if (error) throw error;
+
+      if (data?.url) {
+        const res = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+        if (res.type === 'success' && res.url) {
+          // Deep link handled by supabase-js; no-op here
+        }
       }
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to start Google sign-in');

@@ -1,7 +1,21 @@
 import 'react-native-url-polyfill/auto';
+// Polyfill WebCrypto for PKCE (Expo Go / React Native)
+try {
+  // Random values for PKCE verifiers
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('react-native-get-random-values');
+  // WebCrypto (subtle.digest) for SHA-256 code challenge
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { crypto } = require('react-native-webcrypto');
+  // Attach to global so auth-js can find crypto.subtle
+  if (typeof global !== 'undefined' && !(global as any).crypto) {
+    (global as any).crypto = crypto;
+  }
+} catch {}
 import { createClient } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
+import * as ExpoCrypto from 'expo-crypto';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
@@ -74,3 +88,26 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     flowType: 'pkce',
   },
 });
+
+// Final fallback: provide minimal crypto.subtle.digest using expo-crypto if still missing
+try {
+  const g: any = global as any;
+  if (!g.crypto || !g.crypto.subtle || typeof g.crypto.subtle.digest !== 'function') {
+    if (!g.crypto) g.crypto = {};
+    g.crypto.subtle = {
+      async digest(algorithm: string | { name: string }, data: ArrayBuffer): Promise<ArrayBuffer> {
+        const algo = typeof algorithm === 'string' ? algorithm : algorithm?.name;
+        if (!algo || algo.toUpperCase() !== 'SHA-256') {
+          throw new Error('Only SHA-256 is supported');
+        }
+        const bytes = new Uint8Array(data);
+        let str = '';
+        for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+        const hex = await ExpoCrypto.digestStringAsync(ExpoCrypto.CryptoDigestAlgorithm.SHA256, str);
+        const out = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < hex.length; i += 2) out[i / 2] = parseInt(hex.substr(i, 2), 16);
+        return out.buffer;
+      },
+    } as SubtleCrypto;
+  }
+} catch {}
