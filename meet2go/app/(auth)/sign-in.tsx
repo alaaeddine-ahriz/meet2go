@@ -103,8 +103,8 @@ export default function SignInScreen() {
             onPress={handleGoogleSignIn}
             loading={oauthLoading}
             variant="secondary"
-            style={styles.button}
-          />
+              style={styles.button}
+            />
 
             <Link href="/(auth)/sign-up" asChild>
               <Text style={styles.link}>

@@ -164,9 +164,9 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index, stackPosition,
         </View>
 
         {isActive && (
-          <Animated.Text style={[styles.emoji, animatedEmojiStyle]}>
-            {getEmoji()}
-          </Animated.Text>
+        <Animated.Text style={[styles.emoji, animatedEmojiStyle]}>
+          {getEmoji()}
+        </Animated.Text>
         )}
       </Animated.View>
     </GestureDetector>
@@ -181,11 +181,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 24,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 8,
   },
   image: {
     width: '100%',

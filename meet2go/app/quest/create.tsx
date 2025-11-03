@@ -8,12 +8,12 @@ import {
   Alert,
   Share,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useQuests } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { Ionicons } from '@expo/vector-icons';
@@ -82,20 +82,17 @@ export default function CreateQuestScreen() {
         {step === 'name' ? (
           <>
             {/* <Text style={styles.title}>QUEST NAME</Text> */}
-            <Input
+            <TextInput
+              style={styles.input}
               value={questName}
               onChangeText={setQuestName}
               placeholder="Quest name..."
+              placeholderTextColor={colors.textSecondary}
               autoFocus
-              style={styles.input}
               returnKeyType="next"
               onSubmitEditing={handleNext}
             />
-            <Button
-              title="NEXT"
-              onPress={handleNext}
-              style={styles.button}
-            />
+            {/* NEXT removed - keyboard submit advances */}
           </>
         ) : (
           <>
@@ -187,6 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 0,
     borderColor: 'transparent',
+    fontFamily: 'Komikask',
   },
   dateButton: {
     flexDirection: 'row',

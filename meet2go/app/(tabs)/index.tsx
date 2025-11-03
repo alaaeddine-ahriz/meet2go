@@ -8,6 +8,11 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Alert,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,7 +28,7 @@ export default function HomeScreen() {
   const { quests, isLoading, error, joinQuest, isJoining } = useQuests();
   const [refreshing, setRefreshing] = React.useState(false);
   const [joinCode, setJoinCode] = React.useState('');
-  const [showJoinInput, setShowJoinInput] = React.useState(false);
+  const [showJoinModal, setShowJoinModal] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -47,7 +52,7 @@ export default function HomeScreen() {
     try {
       const quest = await joinQuest(joinCode.trim().toUpperCase());
       setJoinCode('');
-      setShowJoinInput(false);
+      setShowJoinModal(false);
       
       Alert.alert(
         'Success!',
@@ -117,10 +122,10 @@ export default function HomeScreen() {
 
   return (
     <PaperBackground>
-      <View style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>UPCOMING</Text>
+        <Text style={styles.headerTitle}>UPCOMING</Text>
           <TouchableOpacity
             onPress={handleProfilePress}
             style={styles.profileButton}
@@ -147,46 +152,13 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {!showJoinInput && (
+        {!showJoinModal && (
           <Button
             title="JOIN QUEST BY CODE"
-            onPress={() => setShowJoinInput(true)}
+            onPress={() => setShowJoinModal(true)}
             variant="secondary"
             style={styles.joinButton}
           />
-        )}
-
-        {showJoinInput && (
-          <View style={styles.joinContainer}>
-            <Input
-              placeholder="Enter quest code"
-              value={joinCode}
-              onChangeText={setJoinCode}
-              autoCapitalize="characters"
-              maxLength={10}
-              style={styles.joinInput}
-            />
-            <View style={styles.joinButtonRow}>
-              <Button
-                title="CANCEL"
-                onPress={() => {
-                  setShowJoinInput(false);
-                  setJoinCode('');
-                }}
-                variant="secondary"
-                style={styles.joinActionButton}
-                fullWidth={false}
-              />
-              <Button
-                title="JOIN"
-                onPress={handleJoinQuest}
-                disabled={isJoining || !joinCode.trim()}
-                loading={isJoining}
-                style={styles.joinActionButton}
-                fullWidth={false}
-              />
-            </View>
-          </View>
         )}
 
         <Button
@@ -195,7 +167,47 @@ export default function HomeScreen() {
           style={styles.createButton}
         />
       </View>
-      </View>
+
+      <Modal visible={showJoinModal} transparent animationType="fade" onRequestClose={() => setShowJoinModal(false)}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalOverlay}>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ width: '100%' }}>
+              <View style={styles.modalCard}>
+                <Text style={[typography.headline, { textAlign: 'center', color: colors.text, marginBottom: spacing.md }]}>JOIN QUEST</Text>
+                <Input
+                  placeholder="Enter quest code"
+                  value={joinCode}
+                  onChangeText={setJoinCode}
+                  autoCapitalize="characters"
+                  maxLength={10}
+                  style={styles.joinInput}
+                />
+                <View style={styles.joinButtonRow}>
+                  <Button
+                    title="CANCEL"
+                    onPress={() => {
+                      setShowJoinModal(false);
+                      setJoinCode('');
+                    }}
+                    variant="secondary"
+                    style={styles.joinActionButton}
+                    fullWidth={false}
+                  />
+                  <Button
+                    title="JOIN"
+                    onPress={handleJoinQuest}
+                    disabled={isJoining || !joinCode.trim()}
+                    loading={isJoining}
+                    style={styles.joinActionButton}
+                    fullWidth={false}
+                  />
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
     </PaperBackground>
   );
 }
@@ -310,5 +322,20 @@ const styles = StyleSheet.create({
   createButton: {
     marginTop: spacing.sm,
     width: '100%',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 });

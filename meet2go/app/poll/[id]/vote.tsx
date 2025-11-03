@@ -31,10 +31,10 @@ export default function VoteScreen() {
     if (currentIndex >= options.length) return;
 
     const currentOption = options[currentIndex];
-    
+
     // Optimistic UI update - move to next card immediately
-    setVotedOptions(prev => new Map(prev).set(currentOption.id, voteType));
-    setCurrentIndex(prev => prev + 1);
+      setVotedOptions(prev => new Map(prev).set(currentOption.id, voteType));
+        setCurrentIndex(prev => prev + 1);
     
     // Cast vote in background without blocking UI
     castVote({ optionId: currentOption.id, voteType }).catch((error) => {
@@ -108,7 +108,7 @@ export default function VoteScreen() {
 
   return (
     <PaperBackground>
-      <View style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.pollName}>{poll.name}</Text>
         <Text style={styles.progress}>
@@ -120,15 +120,15 @@ export default function VoteScreen() {
         {visibleCards.map((option, stackIndex) => {
           const globalIndex = currentIndex + stackIndex;
           return (
-            <SwipeCard
+        <SwipeCard
               key={option.id}
               optionName={option.name}
               imageUrl={option.image_url || undefined}
-              onSwipe={handleSwipe}
+          onSwipe={handleSwipe}
               index={globalIndex}
               stackPosition={stackIndex}
               isActive={stackIndex === 0}
-            />
+        />
           );
         }).reverse()}
       </View>
@@ -147,7 +147,7 @@ export default function VoteScreen() {
           <Text style={styles.hintText}>← Doesn't Work | Works → | Amazing ↑</Text>
         </View>
       </View>
-      </View>
+    </View>
     </PaperBackground>
   );
 }

@@ -147,7 +147,7 @@ export default function CreatePollScreen() {
             returnKeyType="next"
             onSubmitEditing={handleNext}
           />
-          <Button title="NEXT" onPress={handleNext} style={styles.button} />
+          {/* NEXT removed - keyboard submit advances */}
         </View>
       ) : (
         <ScrollView

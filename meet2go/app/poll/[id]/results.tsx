@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 import { usePoll } from '@/src/hooks/usePolls';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
@@ -61,10 +62,26 @@ export default function ResultsScreen() {
 
   return (
     <PaperBackground>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => router.back()}
+            accessibilityLabel="Back"
+          >
+            <Image source={require('@/assets/icons/arrow-left.png')} style={{ width: 24, height: 24 }} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{poll.name}</Text>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => router.push('/(tabs)')}
+            accessibilityLabel="Home"
+          >
+            <Ionicons name="home-outline" size={24} color={colors.text} />
+          </TouchableOpacity>
+        </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
-          <Text style={styles.pollName}>{poll.name}</Text>
 
           <View style={styles.resultsList}>
             {sortedOptions.map((option: any, index: number) => {
@@ -88,31 +105,19 @@ export default function ResultsScreen() {
             })}
           </View>
 
-          <Button
-            title="+ ADD OPTION"
-            onPress={() => router.push(`/poll/${id}/add-option`)}
-            style={styles.addButton}
-          />
         </View>
       </ScrollView>
 
-      {/* Simple round buttons */}
-      <View style={styles.floatingButtons}>
-        <TouchableOpacity
-          style={styles.glassButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
+      <View style={styles.footer}>
+        <Button
+          title="+ ADD OPTION"
+          onPress={() => router.push(`/poll/${id}/add-option`)}
+          style={styles.addButton}
+        />
+      </View>
 
-        <TouchableOpacity
-          style={styles.glassButton}
-          onPress={() => router.push('/(tabs)')}
-        >
-          <Ionicons name="home-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
-      </View>
-      </View>
+      {/* Nav buttons moved into header */}
+    </View>
     </PaperBackground>
   );
 }
@@ -133,18 +138,34 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 120,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xxl + 40,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    backgroundColor: 'transparent',
+  },
+  headerTitle: {
+    ...typography.headline,
+    color: colors.text,
+    fontWeight: '700',
+    textAlign: 'center',
+    flex: 1,
+  },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: spacing.xxl + 40,
+    paddingTop: spacing.xxl + 40 + spacing.xl,
     paddingHorizontal: spacing.xl,
-  },
-  pollName: {
-    ...typography.headline,
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: spacing.xxl,
   },
   resultsList: {
     width: '100%',
@@ -202,17 +223,17 @@ const styles = StyleSheet.create({
     minWidth: 200,
   },
   addButton: {
-    marginTop: spacing.xxl,
+    marginTop: spacing.sm,
     width: '100%',
   },
-  floatingButtons: {
-    position: 'absolute',
-    bottom: spacing.xl,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  footer: {
     paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
+    alignItems: 'center',
+  },
+  
+  iconButton: {
+    padding: spacing.sm,
   },
   glassButton: {
     width: 50,

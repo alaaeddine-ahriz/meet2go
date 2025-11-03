@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 import { useQuest } from '@/src/hooks/useQuests';
 import { usePolls } from '@/src/hooks/usePolls';
 import { useAuth } from '@/src/hooks/useAuth';
@@ -105,10 +106,20 @@ export default function QuestDetailScreen() {
   return (
     <PaperBackground>
       <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.iconButton} accessibilityLabel="Back">
+          <Image source={require('@/assets/icons/arrow-left.png')} style={{ width: 24, height: 24 }} />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>{quest.name}</Text>
+          <Text style={styles.headerDate}>{formattedDate}</Text>
+        </View>
+        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.iconButton} accessibilityLabel="Home">
+          <Ionicons name="home-outline" size={24} color={colors.text} />
+        </TouchableOpacity>
+      </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
-          <Text style={styles.questName}>{quest.name}</Text>
-          <Text style={styles.questDate}>{formattedDate}</Text>
 
           {polls && polls.length > 0 ? (
             <View style={styles.pollsList}>
@@ -135,21 +146,15 @@ export default function QuestDetailScreen() {
               <Text style={styles.emptyText}>No polls yet</Text>
             </View>
           )}
-
-          <Button title="+ NEW POLL" onPress={handleCreatePoll} style={styles.createButton} />
         </View>
       </ScrollView>
 
-      {/* Glassmorphism Buttons */}
-      <View style={styles.floatingButtons}>
-        <TouchableOpacity onPress={handleShare} style={styles.glassButton}>
-          <Ionicons name="share-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.back()} style={styles.glassButton}>
-          <Ionicons name="home-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
+      <View style={styles.footer}>
+        <Button title="SHARE INVITE" onPress={handleShare} variant="secondary" style={styles.shareButton} />
+        <Button title="+ NEW POLL" onPress={handleCreatePoll} style={styles.createButton} />
       </View>
+
+      {/* Nav buttons moved into header */}
       </View>
     </PaperBackground>
   );
@@ -171,26 +176,45 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 120,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xxl + 40,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    backgroundColor: 'transparent',
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    ...typography.headline,
+    color: colors.text,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  headerDate: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+  },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: spacing.xxl + 40,
+    paddingTop: spacing.xxl + 40 + spacing.xl,
     paddingHorizontal: spacing.xl,
   },
-  questName: {
-    ...typography.headline,
-    fontSize: 38,
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: spacing.xs,
-  },
-  questDate: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
+  
   pollsList: {
     width: '100%',
     alignItems: 'center',
@@ -236,18 +260,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     textAlign: 'center',
   },
-  createButton: {
-    marginTop: spacing.md,
+  footer: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
+    alignItems: 'center',
+  },
+  shareButton: {
+    marginTop: spacing.sm,
     width: '100%',
   },
-  floatingButtons: {
-    position: 'absolute',
-    bottom: spacing.xl,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
+  createButton: {
+    marginTop: spacing.sm,
+    width: '100%',
+  },
+  
+  iconButton: {
+    padding: spacing.sm,
   },
   glassButton: {
     width: 50,

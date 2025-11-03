@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import PaperBackground from '@/src/components/PaperBackground';
 import { useAuth } from '@/src/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
@@ -69,7 +70,8 @@ export default function ProfileScreen() {
   const email = user?.email || '';
 
   return (
-    <View style={styles.container}>
+    <PaperBackground>
+      <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.headerTitle}>PROFILE</Text>
 
@@ -99,19 +101,20 @@ export default function ProfileScreen() {
         />
       </View>
     </View>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   content: {
     flex: 1,
