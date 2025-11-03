@@ -6,13 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'react-native';
 import { usePoll } from '@/src/hooks/usePolls';
 import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography, shadows } from '@/src/constants/theme';
+import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
 
@@ -37,7 +37,6 @@ export default function ResultsScreen() {
     );
   }
 
-  // Check if user has voted (or is poll creator)
   if (!hasVoted) {
     return (
       <View style={styles.centerContainer}>
@@ -62,71 +61,119 @@ export default function ResultsScreen() {
 
   return (
     <PaperBackground>
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => router.back()}
-            accessibilityLabel="Back"
-          >
-            <Image source={require('@/assets/icons/arrow-left.png')} style={{ width: 24, height: 24 }} />
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
+            <Image
+              source={require('@/assets/icons/arrow-left.png')}
+              style={{ width: 24, height: 24 }}
+            />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{poll.name}</Text>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => router.push('/(tabs)')}
-            accessibilityLabel="Home"
           >
             <Ionicons name="home-outline" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
 
-          <View style={styles.resultsList}>
-            {sortedOptions.map((option: any, index: number) => {
-              const isWinner = index === 0;
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.content}>
+            {/* --- Podium --- */}
+            {sortedOptions.length > 0 && (
+              <View style={styles.podiumContainer}>
+                {/* Second place (left) */}
+                {sortedOptions[1] && (
+                  <View style={[styles.podiumSlot, { marginTop: 30 }]}>
+                    <Text style={styles.optionNameTop} numberOfLines={2}>
+                      {sortedOptions[1].name}
+                    </Text>
+                    <View style={[styles.bar, styles.barSecond]}>
+                      <Text style={styles.rankText}>🥈</Text>
+                    </View>
+                    <Text style={styles.voteCount}>
+                      {sortedOptions[1].voteCounts.amazing}😍{' '}
+                      {sortedOptions[1].voteCounts.works}✅{' '}
+                      {sortedOptions[1].voteCounts.doesnt_work}❌
+                    </Text>
+                  </View>
+                )}
 
-              return (
-                <View key={option.id} style={styles.resultItem}>
-                  {isWinner && <Text style={styles.trophy}>🏆</Text>}
-                  
-                  <Text style={[styles.optionName, isWinner && styles.winnerText]}>
-                    {option.name}
-                  </Text>
-                  
-                  <Text style={styles.voteCount}>
-                    {option.voteCounts.amazing}😍 {option.voteCounts.works}✅ {option.voteCounts.doesnt_work}❌
-                  </Text>
-                  
-                  {/* <Text style={styles.score}>Score: {option.score}</Text> */}
-                </View>
-              );
-            })}
+                {/* First place (middle) */}
+                {sortedOptions[0] && (
+                  <View style={[styles.podiumSlot, { marginHorizontal: 8 }]}>
+                    <Text style={[styles.optionNameTop, styles.winnerText]} numberOfLines={2}>
+                      {sortedOptions[0].name}
+                    </Text>
+                    <View style={[styles.bar, styles.barFirst]}>
+                      <Text style={styles.rankText}>🏆</Text>
+                    </View>
+                    <Text style={styles.voteCount}>
+                      {sortedOptions[0].voteCounts.amazing}😍{' '}
+                      {sortedOptions[0].voteCounts.works}✅{' '}
+                      {sortedOptions[0].voteCounts.doesnt_work}❌
+                    </Text>
+                  </View>
+                )}
+
+                {/* Third place (right) */}
+                {sortedOptions[2] && (
+                  <View style={[styles.podiumSlot, { marginTop: 45 }]}>
+                    <Text style={styles.optionNameTop} numberOfLines={2}>
+                      {sortedOptions[2].name}
+                    </Text>
+                    <View style={[styles.bar, styles.barThird]}>
+                      <Text style={styles.rankText}>🥉</Text>
+                    </View>
+                    <Text style={styles.voteCount}>
+                      {sortedOptions[2].voteCounts.amazing}😍{' '}
+                      {sortedOptions[2].voteCounts.works}✅{' '}
+                      {sortedOptions[2].voteCounts.doesnt_work}❌
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* --- Remaining list --- */}
+            {sortedOptions.length > 3 && (
+              <View style={styles.resultsList}>
+                {sortedOptions.slice(3).map((option: any, index: number) => (
+                  <View key={option.id} style={styles.resultCard}>
+                    <Text style={styles.resultBadgeText}>{index + 4}.</Text>
+                    <View style={styles.resultTextWrap}>
+                      <Text style={styles.resultName} numberOfLines={1}>
+                        {option.name}
+                      </Text>
+                      <Text style={styles.resultCounts}>
+                        {option.voteCounts.amazing}😍 {option.voteCounts.works}✅{' '}
+                        {option.voteCounts.doesnt_work}❌
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
           </View>
+        </ScrollView>
 
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Button
+            title="+ ADD OPTION"
+            onPress={() => router.push(`/poll/${id}/add-option`)}
+            style={styles.addButton}
+          />
         </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <Button
-          title="+ ADD OPTION"
-          onPress={() => router.push(`/poll/${id}/add-option`)}
-          style={styles.addButton}
-        />
       </View>
-
-      {/* Nav buttons moved into header */}
-    </View>
     </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
+  container: { flex: 1, backgroundColor: 'transparent' },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -134,10 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: spacing.xl,
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 120,
-  },
+  scrollContent: { flexGrow: 1, paddingBottom: 120 },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -151,7 +195,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1,
-    backgroundColor: 'transparent',
   },
   headerTitle: {
     ...typography.headline,
@@ -165,85 +208,95 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: spacing.xxl + 40 + spacing.xl,
-    paddingHorizontal: spacing.xl,
   },
-  resultsList: {
-    width: '100%',
+
+  // --- Podium ---
+  podiumContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+    alignSelf: 'center',
+    width: '90%', // slightly narrower than before
+  },
+  podiumSlot: {
     alignItems: 'center',
+    width: '25%', // fixed column width ensures balanced bars
   },
-  resultItem: {
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.md,
+  bar: {
     width: '100%',
-  },
-  trophy: {
-    fontSize: 28,
-    marginBottom: spacing.xs,
-  },
-  thumbnail: {
-    width: 80,
-    height: 80,
     borderRadius: 12,
-    marginBottom: spacing.sm,
+    borderWidth: 2,
+    borderColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  optionName: {
-    ...typography.headline,
-    fontSize: 28,
+  barFirst: { height: 150, backgroundColor: '#FFD700' }, // Gold
+  barSecond: { height: 115, backgroundColor: '#C0C0C0' }, // Silver
+  barThird: { height: 95, backgroundColor: '#CD7F32' }, // Bronze
+  rankText: { fontSize: 26 },
+  optionNameTop: {
+    ...typography.body,
+    fontWeight: '700',
+    fontSize: 16,
     color: colors.text,
     marginBottom: spacing.xs,
     textAlign: 'center',
   },
-  winnerText: {
-    color: colors.text,
-    fontWeight: '800',
-  },
+  winnerText: { fontSize: 18 },
   voteCount: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+  },
+
+  // --- Remaining list ---
+  resultsList: {
+    width: '85%', // identical to podium width
+    alignSelf: 'center',
+    marginTop: spacing.lg,
+  },
+  resultCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+
+  resultBadgeText: {
     ...typography.body,
-    fontSize: 18,
     color: colors.text,
+    fontWeight: '700',
+    marginRight: spacing.md,
+  },
+  resultTextWrap: { flex: 1 },
+  resultName: {
+    ...typography.body,
+    color: colors.text,
+    fontWeight: '700',
     marginBottom: spacing.xs,
   },
-  score: {
-    ...typography.body,
-    color: colors.textSecondary,
-    fontWeight: '600',
+  resultCounts: { ...typography.caption, color: colors.textSecondary },
+
+  footer: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
+    alignItems: 'center',
   },
+  addButton: { marginTop: spacing.sm, width: '100%' },
   lockedText: {
     ...typography.headline,
     color: colors.textSecondary,
     marginBottom: spacing.lg,
     textAlign: 'center',
   },
-  errorText: {
-    ...typography.body,
-    color: colors.error,
-  },
-  voteButton: {
-    minWidth: 200,
-  },
-  addButton: {
-    marginTop: spacing.sm,
-    width: '100%',
-  },
-  footer: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xl,
-    alignItems: 'center',
-  },
-  
-  iconButton: {
-    padding: spacing.sm,
-  },
-  glassButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.glass,
-  },
+  errorText: { ...typography.body, color: colors.error },
+  voteButton: { minWidth: 200 },
+  iconButton: { padding: spacing.sm },
 });
