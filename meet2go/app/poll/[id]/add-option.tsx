@@ -11,7 +11,6 @@ import {
   Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { usePolls } from '@/src/hooks/usePolls';
 import { Button } from '@/src/components/ui/Button';
@@ -24,20 +23,7 @@ export default function AddOptionScreen() {
   const { addPollOption, isAddingOption } = usePolls();
   
   const [optionName, setOptionName] = useState('');
-  const [imageUri, setImageUri] = useState<string | undefined>();
-
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    }
-  };
+  // Images are out of scope now
 
   const handleAdd = async () => {
     if (!optionName.trim()) {
@@ -49,7 +35,6 @@ export default function AddOptionScreen() {
       await addPollOption({
         pollId: id!,
         name: optionName.trim(),
-        imageUrl: imageUri,
       });
 
       Alert.alert('Success', 'Option added!', [
@@ -77,17 +62,7 @@ export default function AddOptionScreen() {
         </View>
 
         <View style={styles.form}>
-          {imageUri && (
-            <View style={styles.previewContainer}>
-              <Image source={{ uri: imageUri }} style={styles.previewImage} />
-              <TouchableOpacity
-                style={styles.removeImageButton}
-                onPress={() => setImageUri(undefined)}
-              >
-                <Ionicons name="close-circle" size={24} color={colors.error} />
-              </TouchableOpacity>
-            </View>
-          )}
+          {/* Image preview removed */}
 
           <Input
             label="Option Name"
@@ -97,12 +72,7 @@ export default function AddOptionScreen() {
             autoFocus
           />
 
-          <Button
-            title="📷 Add Image (Optional)"
-            onPress={pickImage}
-            variant="secondary"
-            style={styles.imageButton}
-          />
+          {/* Image picker removed */}
 
           <Button
             title="ADD OPTION"

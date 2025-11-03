@@ -13,6 +13,7 @@ import { useVotes } from '@/src/hooks/useVotes';
 import { SwipeCard } from '@/src/components/voting/SwipeCard';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
+import PaperBackground from '@/src/components/PaperBackground';
 import { VoteType, PollOption } from '@/src/types';
 
 export default function VoteScreen() {
@@ -23,29 +24,23 @@ export default function VoteScreen() {
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [votedOptions, setVotedOptions] = useState<Map<string, VoteType>>(new Map());
-  const [isVoting, setIsVoting] = useState(false);
 
   const options = poll?.poll_options || [];
 
-  const handleSwipe = useCallback(async (voteType: VoteType) => {
+  const handleSwipe = useCallback((voteType: VoteType) => {
     if (currentIndex >= options.length) return;
 
     const currentOption = options[currentIndex];
-    setIsVoting(true);
-
-    try {
-      await castVote({ optionId: currentOption.id, voteType });
-      setVotedOptions(prev => new Map(prev).set(currentOption.id, voteType));
-      
-      // Move to next card
-      setTimeout(() => {
-        setCurrentIndex(prev => prev + 1);
-        setIsVoting(false);
-      }, 300);
-    } catch (error) {
+    
+    // Optimistic UI update - move to next card immediately
+    setVotedOptions(prev => new Map(prev).set(currentOption.id, voteType));
+    setCurrentIndex(prev => prev + 1);
+    
+    // Cast vote in background without blocking UI
+    castVote({ optionId: currentOption.id, voteType }).catch((error) => {
       console.error('Error voting:', error);
-      setIsVoting(false);
-    }
+      // Optionally: show a toast notification for failed votes
+    });
   }, [currentIndex, options, castVote]);
 
   const handlePrevious = useCallback(() => {
@@ -107,10 +102,13 @@ export default function VoteScreen() {
     );
   }
 
-  const currentOption = options[currentIndex];
+  // Render cards in stack: current + next 2 cards
+  const CARDS_IN_STACK = 3;
+  const visibleCards = options.slice(currentIndex, currentIndex + CARDS_IN_STACK);
 
   return (
-    <View style={styles.container}>
+    <PaperBackground>
+      <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.pollName}>{poll.name}</Text>
         <Text style={styles.progress}>
@@ -119,13 +117,20 @@ export default function VoteScreen() {
       </View>
 
       <View style={styles.cardContainer}>
-        <SwipeCard
-          key={currentOption.id}
-          optionName={currentOption.name}
-          imageUrl={currentOption.image_url || undefined}
-          onSwipe={handleSwipe}
-          index={currentIndex}
-        />
+        {visibleCards.map((option, stackIndex) => {
+          const globalIndex = currentIndex + stackIndex;
+          return (
+            <SwipeCard
+              key={option.id}
+              optionName={option.name}
+              imageUrl={option.image_url || undefined}
+              onSwipe={handleSwipe}
+              index={globalIndex}
+              stackPosition={stackIndex}
+              isActive={stackIndex === 0}
+            />
+          );
+        }).reverse()}
       </View>
 
       <View style={styles.footer}>
@@ -133,7 +138,6 @@ export default function VoteScreen() {
           <TouchableOpacity
             style={styles.previousButton}
             onPress={handlePrevious}
-            disabled={isVoting}
           >
             <Text style={styles.previousText}>← PREVIOUS</Text>
           </TouchableOpacity>
@@ -143,20 +147,21 @@ export default function VoteScreen() {
           <Text style={styles.hintText}>← Doesn't Work | Works → | Amazing ↑</Text>
         </View>
       </View>
-    </View>
+      </View>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
     padding: spacing.xl,
   },
   header: {
@@ -178,6 +183,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
   footer: {
     paddingHorizontal: spacing.xl,

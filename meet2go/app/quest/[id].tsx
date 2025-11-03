@@ -16,6 +16,7 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
 import { Vote } from '@/src/types';
+import PaperBackground from '@/src/components/PaperBackground';
 
 export default function QuestDetailScreen() {
   const router = useRouter();
@@ -102,7 +103,8 @@ export default function QuestDetailScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <PaperBackground>
+      <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text style={styles.questName}>{quest.name}</Text>
@@ -148,20 +150,21 @@ export default function QuestDetailScreen() {
           <Ionicons name="home-outline" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
-    </View>
+      </View>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
     padding: spacing.xl,
   },
   scrollContent: {
@@ -176,7 +179,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   questName: {
-    ...typography.title,
+    ...typography.headline,
+    fontSize: 38,
     color: colors.text,
     textAlign: 'center',
     marginBottom: spacing.xs,
@@ -185,7 +189,7 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.lg,
   },
   pollsList: {
     width: '100%',
@@ -193,15 +197,15 @@ const styles = StyleSheet.create({
   },
   pollItem: {
     alignItems: 'center',
-    paddingVertical: spacing.md,
-    marginBottom: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.sm,
     width: '100%',
   },
   pollName: {
     ...typography.headline,
-    fontSize: 24,
+    fontSize: 28,
     color: colors.text,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
     textAlign: 'center',
   },
   statusBadge: {
@@ -219,7 +223,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: spacing.xxl,
+    paddingVertical: spacing.xl,
   },
   emptyText: {
     ...typography.headline,
@@ -233,7 +237,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   createButton: {
-    marginTop: spacing.xl,
+    marginTop: spacing.md,
     width: '100%',
   },
   floatingButtons: {

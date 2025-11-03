@@ -7,17 +7,23 @@ import {
   RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuests } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
+import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography } from '@/src/constants/theme';
+import PaperBackground from '@/src/components/PaperBackground';
 import { Quest } from '@/src/types';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { quests, isLoading, error } = useQuests();
+  const { quests, isLoading, error, joinQuest, isJoining } = useQuests();
   const [refreshing, setRefreshing] = React.useState(false);
+  const [joinCode, setJoinCode] = React.useState('');
+  const [showJoinInput, setShowJoinInput] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -30,6 +36,42 @@ export default function HomeScreen() {
 
   const handleQuestPress = (questId: string) => {
     router.push(`/quest/${questId}`);
+  };
+
+  const handleJoinQuest = async () => {
+    if (!joinCode.trim()) {
+      Alert.alert('Error', 'Please enter a quest code');
+      return;
+    }
+
+    try {
+      const quest = await joinQuest(joinCode.trim().toUpperCase());
+      setJoinCode('');
+      setShowJoinInput(false);
+      
+      Alert.alert(
+        'Success!',
+        `You joined "${quest.name}"`,
+        [
+          {
+            text: 'View Quest',
+            onPress: () => router.push(`/quest/${quest.id}`),
+          },
+          {
+            text: 'OK',
+          },
+        ]
+      );
+    } catch (error: any) {
+      Alert.alert(
+        'Error',
+        error.message || 'Failed to join quest. Please check the code and try again.'
+      );
+    }
+  };
+
+  const handleProfilePress = () => {
+    router.push('/(tabs)/profile');
   };
 
   const renderQuestItem = ({ item }: { item: Quest }) => {
@@ -74,9 +116,19 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <PaperBackground>
+      <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.headerTitle}>UPCOMING</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerTitle}>UPCOMING</Text>
+          <TouchableOpacity
+            onPress={handleProfilePress}
+            style={styles.profileButton}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="person-circle-outline" size={32} color={colors.text} />
+          </TouchableOpacity>
+        </View>
 
         {quests && quests.length > 0 ? (
           <FlatList
@@ -95,26 +147,69 @@ export default function HomeScreen() {
           </View>
         )}
 
+        {!showJoinInput && (
+          <Button
+            title="JOIN QUEST BY CODE"
+            onPress={() => setShowJoinInput(true)}
+            variant="secondary"
+            style={styles.joinButton}
+          />
+        )}
+
+        {showJoinInput && (
+          <View style={styles.joinContainer}>
+            <Input
+              placeholder="Enter quest code"
+              value={joinCode}
+              onChangeText={setJoinCode}
+              autoCapitalize="characters"
+              maxLength={10}
+              style={styles.joinInput}
+            />
+            <View style={styles.joinButtonRow}>
+              <Button
+                title="CANCEL"
+                onPress={() => {
+                  setShowJoinInput(false);
+                  setJoinCode('');
+                }}
+                variant="secondary"
+                style={styles.joinActionButton}
+                fullWidth={false}
+              />
+              <Button
+                title="JOIN"
+                onPress={handleJoinQuest}
+                disabled={isJoining || !joinCode.trim()}
+                loading={isJoining}
+                style={styles.joinActionButton}
+                fullWidth={false}
+              />
+            </View>
+          </View>
+        )}
+
         <Button
           title="+ NEW QUEST"
           onPress={handleCreateQuest}
           style={styles.createButton}
         />
       </View>
-    </View>
+      </View>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
     padding: spacing.xl,
   },
   content: {
@@ -125,12 +220,51 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xl,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
   headerTitle: {
     ...typography.headline,
     color: colors.text,
     fontWeight: '700',
+    flex: 1,
     textAlign: 'center',
-    marginBottom: spacing.xl,
+  },
+  profileButton: {
+    padding: spacing.xs,
+  },
+  joinButton: {
+    marginBottom: spacing.sm,
+    width: '100%',
+  },
+  joinContainer: {
+    width: '100%',
+    marginBottom: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  joinInput: {
+    marginBottom: spacing.md,
+  },
+  joinButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  joinActionButton: {
+    flex: 1,
+    marginTop: 0,
+    marginHorizontal: spacing.xs,
+  },
+  cancelButton: {
+    marginRight: spacing.xs,
   },
   listContent: {
     alignItems: 'center',
@@ -174,7 +308,7 @@ const styles = StyleSheet.create({
     minWidth: 200,
   },
   createButton: {
-    marginTop: spacing.xl,
+    marginTop: spacing.sm,
     width: '100%',
   },
 });

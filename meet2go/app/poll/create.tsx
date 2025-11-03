@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,11 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  Keyboard,
 } from 'react-native';
+import PaperBackground from '@/src/components/PaperBackground';
+// Swipe disabled; using double-tap to delete instead
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { usePolls } from '@/src/hooks/usePolls';
 import { Button } from '@/src/components/ui/Button';
@@ -21,7 +23,6 @@ import { colors, spacing, typography, shadows } from '@/src/constants/theme';
 
 interface PollOption {
   name: string;
-  imageUri?: string;
 }
 
 type Step = 'name' | 'options';
@@ -35,7 +36,19 @@ export default function CreatePollScreen() {
   const [pollName, setPollName] = useState('');
   const [options, setOptions] = useState<PollOption[]>([]);
   const [currentOption, setCurrentOption] = useState('');
-  const [currentImage, setCurrentImage] = useState<string | undefined>();
+  const optionInputRef = useRef<TextInput>(null);
+  const lastTapRef = useRef<number>(0);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+  
 
   const handleNext = () => {
     if (!pollName.trim()) {
@@ -45,18 +58,7 @@ export default function CreatePollScreen() {
     setStep('options');
   };
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      setCurrentImage(result.assets[0].uri);
-    }
-  };
+  // Images are out of scope for now
 
   const addOption = () => {
     if (!currentOption.trim()) {
@@ -64,9 +66,27 @@ export default function CreatePollScreen() {
       return;
     }
 
-    setOptions([...options, { name: currentOption.trim(), imageUri: currentImage }]);
+    setOptions([...options, { name: currentOption.trim() }]);
     setCurrentOption('');
-    setCurrentImage(undefined);
+    // Keep keyboard active and focus in the input for fast entry
+    requestAnimationFrame(() => {
+      optionInputRef.current?.focus();
+    });
+  };
+
+  const handleAddButtonPress = () => {
+    // If collapsed (has options and keyboard hidden) or no text yet → open input
+    if ((options.length > 0 && !keyboardVisible) || currentOption.trim().length === 0) {
+      // Pre-expand the input row and then focus to avoid immediate collapse
+      setKeyboardVisible(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          optionInputRef.current?.focus();
+        });
+      });
+      return;
+    }
+    addOption();
   };
 
   const removeOption = (index: number) => {
@@ -77,7 +97,7 @@ export default function CreatePollScreen() {
     // Add current option if there's text
     let finalOptions = [...options];
     if (currentOption.trim()) {
-      finalOptions.push({ name: currentOption.trim(), imageUri: currentImage });
+      finalOptions.push({ name: currentOption.trim() });
     }
 
     if (finalOptions.length === 0) {
@@ -97,7 +117,6 @@ export default function CreatePollScreen() {
         await addPollOption({
           pollId: poll.id,
           name: option.name,
-          imageUrl: option.imageUri,
         });
       }
 
@@ -110,19 +129,21 @@ export default function CreatePollScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+    <PaperBackground>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
       {step === 'name' ? (
         <View style={styles.content}>
           {/* <Text style={styles.title}>POLL NAME</Text> */}
-          <Input
+          <TextInput
+            style={styles.input}
             value={pollName}
             onChangeText={setPollName}
-            placeholder="Poll name...?"
+            placeholder="Poll name..."
+            placeholderTextColor={colors.textSecondary}
             autoFocus
-            style={styles.input}
             returnKeyType="next"
             onSubmitEditing={handleNext}
           />
@@ -140,46 +161,55 @@ export default function CreatePollScreen() {
             {options.length > 0 && (
               <View style={styles.optionsList}>
                 {options.map((option, index) => (
-                  <View key={index} style={styles.optionItem}>
-                    <Text style={styles.optionText}>{option.name}</Text>
-                    <TouchableOpacity onPress={() => removeOption(index)}>
-                      <Ionicons name="close-circle" size={24} color={colors.error} />
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    key={`${option.name}-${index}`}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      const now = Date.now();
+                      if (now - lastTapRef.current < 300) {
+                        removeOption(index);
+                      }
+                      lastTapRef.current = now;
+                    }}
+                  >
+                    <View style={styles.optionItem}>
+                      <Text style={styles.optionTextCenter}>{option.name}</Text>
+                    </View>
+                  </TouchableOpacity>
                 ))}
               </View>
             )}
 
             <View style={styles.addOptionContainer}>
-              {currentImage && (
-                <View style={styles.previewContainer}>
-                  <Image source={{ uri: currentImage }} style={styles.previewImage} />
-                  <TouchableOpacity
-                    style={styles.removeImageButton}
-                    onPress={() => setCurrentImage(undefined)}
-                  >
-                    <Ionicons name="close-circle" size={24} color={colors.error} />
-                  </TouchableOpacity>
-                </View>
-              )}
+            {/* Image selection removed (out of scope) */}
 
-              <View style={styles.inputRow}>
+              <View
+                style={[
+                  styles.inputRow,
+                  (options.length > 0 && !keyboardVisible) && styles.collapsedRow,
+                ]}
+                pointerEvents={(options.length > 0 && !keyboardVisible) ? 'none' : 'auto'}
+              >
                 <TextInput
-                  style={styles.optionInput}
+                  ref={optionInputRef}
+                  style={[
+                    styles.optionInput,
+                    (options.length > 0 && !keyboardVisible) && styles.collapsedInput,
+                  ]}
                   value={currentOption}
                   onChangeText={setCurrentOption}
-                  placeholder="Option name"
+                  placeholder={(options.length === 0 || keyboardVisible) ? 'Option name...' : ''}
                   placeholderTextColor={colors.textSecondary}
                   returnKeyType="done"
+                  blurOnSubmit={false}
+                  onSubmitEditing={addOption}
                 />
-                <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
-                  <Ionicons name="image-outline" size={24} color={colors.primary} />
-                </TouchableOpacity>
+                {/* Image button removed */}
               </View>
 
               <Button
                 title="+ ADD"
-                onPress={addOption}
+                onPress={handleAddButtonPress}
                 variant="secondary"
                 style={styles.addButton}
               />
@@ -205,14 +235,15 @@ export default function CreatePollScreen() {
       >
         <Ionicons name="close" size={24} color={colors.text} />
       </TouchableOpacity>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     flexGrow: 1,
@@ -222,26 +253,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl + 40,
-    paddingBottom: spacing.xl,
+    paddingTop: spacing.xl + 40,
+    paddingBottom: spacing.lg,
   },
   title: {
     ...typography.headline,
     color: colors.text,
     textAlign: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: spacing.sm,
   },
   pollNameDisplay: {
     ...typography.headline,
-    fontSize: 20,
+    fontSize: 18,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   input: {
     width: '100%',
-    fontSize: 24,
+    fontSize: 38,
+    lineHeight: 46,
     textAlign: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    borderColor: 'transparent',
+    fontFamily: 'Komikask',
   },
   button: {
     width: '100%',
@@ -249,25 +285,32 @@ const styles = StyleSheet.create({
   },
   optionsList: {
     width: '100%',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
+    alignItems: 'center',
   },
   optionItem: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.xs,
+    width: '100%',
   },
   optionText: {
     ...typography.body,
     color: colors.text,
     flex: 1,
   },
+  optionTextCenter: {
+    ...typography.headline,
+    fontSize: 30,
+    color: colors.text,
+    textAlign: 'center',
+  },
   addOptionContainer: {
     width: '100%',
-    marginBottom: spacing.xl,
+    marginBottom: spacing.md,
   },
   previewContainer: {
     position: 'relative',
@@ -288,18 +331,31 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  collapsedRow: {
+    height: 0,
+    marginBottom: 0,
+    overflow: 'hidden',
   },
   optionInput: {
     flex: 1,
-    ...typography.body,
     backgroundColor: 'transparent',
     borderWidth: 0,
     borderColor: 'transparent',
-    borderRadius: 12,
-    padding: spacing.md,
+    borderRadius: 28,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
     color: colors.text,
     marginRight: spacing.sm,
+    textAlign: 'center',
+    fontSize: 32,
+    lineHeight: 38,
+    fontFamily: 'Komikask',
+  },
+  collapsedInput: {
+    height: 0,
+    paddingVertical: 0,
   },
   imageButton: {
     backgroundColor: 'transparent',
@@ -311,14 +367,14 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: 'transparent',
     borderWidth: 0,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   createButton: {
     width: '100%',
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   previousButton: {
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   previousText: {
     ...typography.button,

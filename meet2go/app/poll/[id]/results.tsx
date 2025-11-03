@@ -6,13 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { usePoll } from '@/src/hooks/usePolls';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
+import PaperBackground from '@/src/components/PaperBackground';
 import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
 
 export default function ResultsScreen() {
@@ -60,25 +60,19 @@ export default function ResultsScreen() {
   const sortedOptions = sortByScore(optionsWithScores);
 
   return (
-    <View style={styles.container}>
+    <PaperBackground>
+      <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text style={styles.pollName}>{poll.name}</Text>
 
           <View style={styles.resultsList}>
-            {sortedOptions.map((option, index) => {
+            {sortedOptions.map((option: any, index: number) => {
               const isWinner = index === 0;
 
               return (
                 <View key={option.id} style={styles.resultItem}>
                   {isWinner && <Text style={styles.trophy}>🏆</Text>}
-                  
-                  {option.image_url && (
-                    <Image
-                      source={{ uri: option.image_url }}
-                      style={styles.thumbnail}
-                    />
-                  )}
                   
                   <Text style={[styles.optionName, isWinner && styles.winnerText]}>
                     {option.name}
@@ -118,20 +112,21 @@ export default function ResultsScreen() {
           <Ionicons name="home-outline" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
-    </View>
+      </View>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
     padding: spacing.xl,
   },
   scrollContent: {

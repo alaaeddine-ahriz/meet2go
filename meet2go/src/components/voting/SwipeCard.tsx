@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
   runOnJS,
   interpolate,
 } from 'react-native-reanimated';
@@ -14,17 +15,30 @@ import { VoteType } from '@/src/types';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
+const CARD_OFFSET = 10; // Vertical offset between stacked cards
+const CARD_SCALE_FACTOR = 0.05; // Scale reduction per card in stack
+
 interface SwipeCardProps {
   optionName: string;
   imageUrl?: string;
   onSwipe: (voteType: VoteType) => void;
   index: number;
+  stackPosition: number; // 0 = top card, 1 = second card, etc.
+  isActive: boolean; // Only the top card is active for swiping
 }
 
-export function SwipeCard({ optionName, imageUrl, onSwipe, index }: SwipeCardProps) {
+export function SwipeCard({ optionName, imageUrl, onSwipe, index, stackPosition, isActive }: SwipeCardProps) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const isDragging = useSharedValue(false);
+  const stackScale = useSharedValue(1 - stackPosition * CARD_SCALE_FACTOR);
+  const stackOffset = useSharedValue(stackPosition * CARD_OFFSET);
+
+  // Animate cards moving up in the stack
+  useEffect(() => {
+    stackScale.value = withTiming(1 - stackPosition * CARD_SCALE_FACTOR, { duration: 200 });
+    stackOffset.value = withTiming(stackPosition * CARD_OFFSET, { duration: 200 });
+  }, [stackPosition]);
 
   const handleSwipeEnd = (voteType: VoteType) => {
     'worklet';
@@ -32,6 +46,7 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index }: SwipeCardPro
   };
 
   const panGesture = Gesture.Pan()
+    .enabled(isActive)
     .onBegin(() => {
       isDragging.value = true;
     })
@@ -48,28 +63,28 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index }: SwipeCardPro
       // Check vertical swipe first (up for "amazing")
       if (translationY < -SWIPE_THRESHOLD && Math.abs(velocityY) > 300) {
         voteType = 'amazing';
-        translateY.value = withSpring(-SCREEN_HEIGHT, {}, () => {
+        translateY.value = withSpring(-SCREEN_HEIGHT, { damping: 20, stiffness: 90 }, () => {
           if (voteType) handleSwipeEnd(voteType);
         });
-        translateX.value = withSpring(0);
+        translateX.value = withSpring(0, { damping: 20, stiffness: 90 });
       }
       // Check horizontal swipes
       else if (translationX > SWIPE_THRESHOLD && velocityX > 0) {
         voteType = 'works';
-        translateX.value = withSpring(SCREEN_WIDTH, {}, () => {
+        translateX.value = withSpring(SCREEN_WIDTH * 1.5, { damping: 20, stiffness: 90 }, () => {
           if (voteType) handleSwipeEnd(voteType);
         });
-        translateY.value = withSpring(0);
+        translateY.value = withSpring(0, { damping: 20, stiffness: 90 });
       } else if (translationX < -SWIPE_THRESHOLD && velocityX < 0) {
         voteType = 'doesnt_work';
-        translateX.value = withSpring(-SCREEN_WIDTH, {}, () => {
+        translateX.value = withSpring(-SCREEN_WIDTH * 1.5, { damping: 20, stiffness: 90 }, () => {
           if (voteType) handleSwipeEnd(voteType);
         });
-        translateY.value = withSpring(0);
+        translateY.value = withSpring(0, { damping: 20, stiffness: 90 });
       } else {
         // Snap back if threshold not met
-        translateX.value = withSpring(0);
-        translateY.value = withSpring(0);
+        translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
+        translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
       }
 
       isDragging.value = false;
@@ -82,15 +97,17 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index }: SwipeCardPro
       [-CARD_ROTATION, 0, CARD_ROTATION]
     );
 
-    const scale = isDragging.value ? 0.95 : 1;
+    const dragScale = isDragging.value ? 0.98 : 1;
+    const finalScale = stackScale.value * dragScale;
 
     return {
       transform: [
         { translateX: translateX.value },
-        { translateY: translateY.value },
+        { translateY: translateY.value + stackOffset.value },
         { rotate: `${rotation}deg` },
-        { scale },
+        { scale: finalScale },
       ],
+      zIndex: 100 - stackPosition,
     };
   });
 
@@ -140,15 +157,17 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index }: SwipeCardPro
           <View style={styles.imagePlaceholder} />
         )}
         
-        <Animated.View style={[styles.overlay, animatedOverlayStyle]} />
+        {isActive && <Animated.View style={[styles.overlay, animatedOverlayStyle]} />}
         
         <View style={styles.textContainer}>
           <Text style={styles.optionName}>{optionName}</Text>
         </View>
 
-        <Animated.Text style={[styles.emoji, animatedEmojiStyle]}>
-          {getEmoji()}
-        </Animated.Text>
+        {isActive && (
+          <Animated.Text style={[styles.emoji, animatedEmojiStyle]}>
+            {getEmoji()}
+          </Animated.Text>
+        )}
       </Animated.View>
     </GestureDetector>
   );
@@ -156,18 +175,17 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index }: SwipeCardPro
 
 const styles = StyleSheet.create({
   card: {
+    position: 'absolute',
     width: SCREEN_WIDTH - spacing.xl * 2,
     height: SCREEN_HEIGHT * 0.6,
     backgroundColor: colors.surface,
     borderRadius: 24,
     overflow: 'hidden',
-    ...{
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 12,
-      elevation: 8,
-    },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   image: {
     width: '100%',

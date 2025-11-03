@@ -15,6 +15,7 @@ import { useQuests } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
+import PaperBackground from '@/src/components/PaperBackground';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function CreateQuestScreen() {
@@ -72,18 +73,19 @@ export default function CreateQuestScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+    <PaperBackground>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
       <View style={styles.content}>
         {step === 'name' ? (
           <>
-            <Text style={styles.title}>QUEST NAME</Text>
+            {/* <Text style={styles.title}>QUEST NAME</Text> */}
             <Input
               value={questName}
               onChangeText={setQuestName}
-              placeholder="e.g., Japan Trip"
+              placeholder="Quest name..."
               autoFocus
               style={styles.input}
               returnKeyType="next"
@@ -148,14 +150,15 @@ export default function CreateQuestScreen() {
       >
         <Ionicons name="close" size={24} color={colors.text} />
       </TouchableOpacity>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   content: {
     flex: 1,
@@ -178,8 +181,12 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    fontSize: 24,
+    lineHeight: 46,
+    fontSize: 38,
     textAlign: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    borderColor: 'transparent',
   },
   dateButton: {
     flexDirection: 'row',

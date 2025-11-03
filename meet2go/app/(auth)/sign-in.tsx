@@ -9,6 +9,8 @@ import {
   Alert,
 } from 'react-native';
 import { Link } from 'expo-router';
+import * as Linking from 'expo-linking';
+import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/hooks/useAuth';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
@@ -19,6 +21,7 @@ export default function SignInScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
+  const [oauthLoading, setOauthLoading] = useState(false);
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -33,6 +36,27 @@ export default function SignInScreen() {
       Alert.alert('Error', error.message || 'Failed to sign in');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setOauthLoading(true);
+      const redirectTo = Linking.createURL('/');
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo,
+          skipBrowserRedirect: false,
+        },
+      });
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to start Google sign-in');
+    } finally {
+      setOauthLoading(false);
     }
   };
 
@@ -73,6 +97,14 @@ export default function SignInScreen() {
               loading={loading}
               style={styles.button}
             />
+
+          <Button
+            title="CONTINUE WITH GOOGLE"
+            onPress={handleGoogleSignIn}
+            loading={oauthLoading}
+            variant="secondary"
+            style={styles.button}
+          />
 
             <Link href="/(auth)/sign-up" asChild>
               <Text style={styles.link}>
