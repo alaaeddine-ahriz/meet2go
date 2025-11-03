@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { usePoll } from '@/src/hooks/usePolls';
+import { useQuest } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
@@ -20,6 +21,7 @@ export default function ResultsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { poll, isLoading, hasVoted } = usePoll(id);
+  const { quest } = useQuest(poll?.quest_id);
 
   if (isLoading) {
     return (
@@ -70,11 +72,13 @@ export default function ResultsScreen() {
               style={{ width: 24, height: 24 }}
             />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{poll.name}</Text>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => router.push('/(tabs)')}
-          >
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerTitle}>{poll.name}</Text>
+            {!!quest?.name && (
+              <Text style={styles.headerSubtitle}>{quest.name}</Text>
+            )}
+          </View>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/(tabs)')}>
             <Ionicons name="home-outline" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -181,7 +185,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: spacing.xl,
   },
-  scrollContent: { flexGrow: 1, paddingBottom: 120 },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingTop: spacing.xxl + 40 + spacing.xl,
+    paddingBottom: 140,
+  },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -203,11 +212,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flex: 1,
   },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerSubtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+  },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: spacing.xxl + 40 + spacing.xl,
+    paddingTop: 0,
   },
 
   // --- Podium ---

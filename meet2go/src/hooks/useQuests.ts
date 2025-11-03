@@ -145,7 +145,7 @@ export function useQuest(questId?: string) {
 
       console.log('useQuest: Quest data:', questData);
 
-      // Get members separately (just user IDs for now, skip profiles)
+      // Get members separately
       const { data: membersData, error: membersError } = await supabase
         .from('quest_members')
         .select('user_id')
@@ -158,9 +158,25 @@ export function useQuest(questId?: string) {
 
       console.log('useQuest: Members data:', membersData);
 
+      // Fetch member profiles (id, display_name, avatar_url)
+      let membersProfiles: any[] = [];
+      const memberIds = (membersData || []).map((m: any) => m.user_id);
+      if (memberIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('user_profiles')
+          .select('id, display_name, avatar_url')
+          .in('id', memberIds);
+        if (profilesError) {
+          console.error('useQuest: Error fetching member profiles:', profilesError);
+        } else {
+          membersProfiles = profiles || [];
+        }
+      }
+
       return {
         ...questData,
         quest_members: membersData || [],
+        members_profiles: membersProfiles,
       };
     },
     enabled: !!questId,

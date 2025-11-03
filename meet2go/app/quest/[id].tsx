@@ -113,6 +113,28 @@ export default function QuestDetailScreen() {
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>{quest.name}</Text>
           <Text style={styles.headerDate}>{formattedDate}</Text>
+          {!!quest?.members_profiles?.length && (
+            <View style={styles.avatarRow}>
+              {quest.members_profiles.slice(0, 6).map((p: any, i: number) => (
+                <View key={p.id} style={[styles.avatarWrap, { marginLeft: i === 0 ? 0 : -12 }]}> 
+                  {p.avatar_url ? (
+                    <Image source={{ uri: p.avatar_url }} style={styles.avatar} />
+                  ) : (
+                    <View style={[styles.avatar, styles.avatarFallback]}>
+                      <Text style={styles.avatarInitial}>
+                        {(p.display_name || 'U').charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              ))}
+              {quest.members_profiles.length > 6 && (
+                <View style={[styles.avatar, styles.moreAvatar, { marginLeft: -12 }]}>
+                  <Text style={styles.moreText}>+{quest.members_profiles.length - 6}</Text>
+                </View>
+              )}
+            </View>
+          )}
         </View>
         <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.iconButton} accessibilityLabel="Home">
           <Ionicons name="home-outline" size={24} color={colors.text} />
@@ -174,7 +196,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 120,
+    justifyContent: 'center',
+    paddingTop: spacing.xxl + 40 + spacing.xl,
+    paddingBottom: 0,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -195,6 +219,45 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+  avatarRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  avatarWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
+  avatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
+  },
+  avatarFallback: {
+    backgroundColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitial: {
+    ...typography.body,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  moreAvatar: {
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moreText: {
+    ...typography.caption,
+    color: colors.surface,
+    fontWeight: '700',
+  },
   headerTitle: {
     ...typography.headline,
     color: colors.text,
@@ -211,7 +274,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: spacing.xxl + 40 + spacing.xl,
+    paddingTop: 0,
     paddingHorizontal: spacing.xl,
   },
   
