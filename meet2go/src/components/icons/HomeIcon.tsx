@@ -30,3 +30,4 @@ export function HomeIcon({ size = 24, color = '#000000' }: HomeIconProps) {
   );
 }
 
+

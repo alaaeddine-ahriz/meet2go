@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,13 @@ export default function QuestDetailScreen() {
   const { user } = useAuth();
   const { quest, isLoading: questLoading, error: questError } = useQuest(id);
   const { polls, isLoading: pollsLoading } = usePolls(id);
+
+  // Ensure hooks are declared before any early returns
+  const [headerHeight, setHeaderHeight] = useState<number>(0);
+  const scrollPaddingTop = useMemo(() => {
+    // Ensure content starts below the fixed header
+    return headerHeight > 0 ? headerHeight + spacing.lg : spacing.xxl + 40 + spacing.xl;
+  }, [headerHeight]);
 
   const handleShare = async () => {
     if (!quest) return;
@@ -106,7 +113,10 @@ export default function QuestDetailScreen() {
   return (
     <PaperBackground>
       <View style={styles.container}>
-      <View style={styles.headerContainer}>
+      <View
+        style={styles.headerContainer}
+        onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
+      >
         <View style={styles.headerCenter}>
           <RoughNotationWrapper type="highlight" color="#FFB6C1" show={true}>
             <Text style={styles.headerTitle}>{quest.name}</Text>
@@ -136,7 +146,7 @@ export default function QuestDetailScreen() {
           )}
         </View>
       </View>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: scrollPaddingTop }]}>
         <View style={styles.content}>
 
           {polls && polls.length > 0 ? (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,12 @@ export default function ResultsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { poll, isLoading, hasVoted } = usePoll(id);
   const { quest } = useQuest(poll?.quest_id);
+
+  // Ensure hooks are declared before any early returns
+  const [headerHeight, setHeaderHeight] = useState<number>(0);
+  const scrollPaddingTop = useMemo(() => {
+    return headerHeight > 0 ? headerHeight + spacing.lg : spacing.xxl + 40 + spacing.xl;
+  }, [headerHeight]);
 
   if (isLoading) {
     return (
@@ -64,7 +70,10 @@ export default function ResultsScreen() {
     <PaperBackground>
       <View style={styles.container}>
         {/* Header */}
-        <View style={styles.headerContainer}>
+        <View
+          style={styles.headerContainer}
+          onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
+        >
           <View style={styles.headerCenter}>
             <RoughNotationWrapper type="highlight" color="#98FB98" show={true}>
               <Text style={styles.headerTitle}>{poll.name}</Text>
@@ -75,7 +84,7 @@ export default function ResultsScreen() {
           </View>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: scrollPaddingTop }]}>
           <View style={styles.content}>
             {/* --- Podium --- */}
             {sortedOptions.length > 0 && (
