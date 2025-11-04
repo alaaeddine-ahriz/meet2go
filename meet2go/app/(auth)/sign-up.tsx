@@ -13,6 +13,8 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography } from '@/src/constants/theme';
+import PaperBackground from '@/src/components/PaperBackground';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function SignUpScreen() {
   const [displayName, setDisplayName] = useState('');
@@ -46,19 +48,23 @@ export default function SignUpScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+    <PaperBackground>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
       >
-        <View style={styles.content}>
-          <Text style={styles.title}>JOIN MEET2GO</Text>
-          <Text style={styles.subtitle}>Create your account</Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
+            <View style={styles.titleContainer}>
+              <RoughNotationWrapper type="highlight" color="#DDA0DD" show={true}>
+                <Text style={styles.title}>SIGN UP</Text>
+              </RoughNotationWrapper>
+            </View>
 
-          <View style={styles.form}>
+            <View style={styles.form}>
             <Input
               label="Display Name (Optional)"
               value={displayName}
@@ -99,13 +105,14 @@ export default function SignUpScreen() {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     flexGrow: 1,
@@ -114,19 +121,20 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: spacing.xl,
+    paddingTop: spacing.xxl + 40,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
+  },
+  titleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: spacing.xxl,
   },
   title: {
-    ...typography.title,
+    ...typography.headline,
     textAlign: 'center',
-    marginBottom: spacing.sm,
-    color: colors.primary,
-  },
-  subtitle: {
-    ...typography.body,
-    textAlign: 'center',
-    color: colors.textSecondary,
-    marginBottom: spacing.xxl,
+    color: colors.text,
+    fontWeight: '700',
   },
   form: {
     width: '100%',

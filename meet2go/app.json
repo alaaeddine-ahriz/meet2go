@@ -44,7 +44,15 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Meet2Go",
+      "shortName": "Meet2Go",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#5B6FED",
+      "backgroundColor": "#FFFFFF",
+      "display": "standalone",
+      "orientation": "portrait"
     },
     "plugins": [
       "expo-router",

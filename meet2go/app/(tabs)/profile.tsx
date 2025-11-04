@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import PaperBackground from '@/src/components/PaperBackground';
 import { useAuth } from '@/src/hooks/useAuth';
@@ -82,27 +83,38 @@ export default function ProfileScreen() {
   });
 
   const handleSignOut = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await signOut();
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to sign out');
-            }
+    if (Platform.OS === 'web') {
+      // On web, use browser confirm for better compatibility
+      const confirmed = window.confirm('Are you sure you want to sign out?');
+      if (confirmed) {
+        signOut().catch((error: any) => {
+          window.alert(error.message || 'Failed to sign out');
+        });
+      }
+    } else {
+      // On native, use Alert
+      Alert.alert(
+        'Sign Out',
+        'Are you sure you want to sign out?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
           },
-        },
-      ]
-    );
+          {
+            text: 'Sign Out',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await signOut();
+              } catch (error: any) {
+                Alert.alert('Error', error.message || 'Failed to sign out');
+              }
+            },
+          },
+        ]
+      );
+    }
   };
 
   if (authLoading || profileLoading) {
