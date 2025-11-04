@@ -21,10 +21,11 @@ export default function VoteScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { poll, isLoading } = usePoll(id);
-  const { castVote } = useVotes();
+  const { castVotesBatch, isBatchVoting } = useVotes();
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [votedOptions, setVotedOptions] = useState<Map<string, VoteType>>(new Map());
+  const [pendingVotes, setPendingVotes] = useState<Array<{ optionId: string; voteType: VoteType }>>([]);
 
   const options = poll?.poll_options || [];
 
@@ -34,15 +35,20 @@ export default function VoteScreen() {
     const currentOption = options[currentIndex];
 
     // Optimistic UI update - move to next card immediately
-      setVotedOptions(prev => new Map(prev).set(currentOption.id, voteType));
-        setCurrentIndex(prev => prev + 1);
-    
-    // Cast vote in background without blocking UI
-    castVote({ optionId: currentOption.id, voteType }).catch((error) => {
-      console.error('Error voting:', error);
-      // Optionally: show a toast notification for failed votes
-    });
-  }, [currentIndex, options, castVote]);
+    setVotedOptions(prev => new Map(prev).set(currentOption.id, voteType));
+    setPendingVotes(prev => [...prev, { optionId: currentOption.id, voteType }]);
+    const nextIndex = currentIndex + 1;
+    setCurrentIndex(nextIndex);
+
+    // If last card swiped, submit all pending votes as a batch
+    if (nextIndex >= options.length) {
+      const votesToSubmit = [...pendingVotes, { optionId: currentOption.id, voteType }];
+      castVotesBatch(votesToSubmit).catch((error) => {
+        console.error('Error submitting votes:', error);
+        // Optionally: surface a non-blocking toast/snackbar
+      });
+    }
+  }, [currentIndex, options, pendingVotes, castVotesBatch]);
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -81,6 +87,9 @@ export default function VoteScreen() {
       <View style={styles.centerContainer}>
         <Text style={styles.completionTitle}>YOU'RE SET!</Text>
         <Text style={styles.completionEmoji}>🚀</Text>
+        {isBatchVoting && (
+          <ActivityIndicator size="small" color={colors.primary} />
+        )}
         
         <TouchableOpacity onPress={handleSeeResults} style={styles.resultsLink}>
           <Text style={styles.resultsLinkText}>SEE RESULTS</Text>

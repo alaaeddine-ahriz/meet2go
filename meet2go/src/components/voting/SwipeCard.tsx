@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Image, Platform } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -63,23 +63,23 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index, stackPosition,
       // Check vertical swipe first (up for "amazing")
       if (translationY < -SWIPE_THRESHOLD && Math.abs(velocityY) > 300) {
         voteType = 'amazing';
-        translateY.value = withSpring(-SCREEN_HEIGHT, { damping: 20, stiffness: 90 }, () => {
-          if (voteType) handleSwipeEnd(voteType);
-        });
+        // Trigger callback immediately, don't wait for animation
+        handleSwipeEnd(voteType);
+        translateY.value = withSpring(-SCREEN_HEIGHT, { damping: 20, stiffness: 90 });
         translateX.value = withSpring(0, { damping: 20, stiffness: 90 });
       }
       // Check horizontal swipes
       else if (translationX > SWIPE_THRESHOLD && velocityX > 0) {
         voteType = 'works';
-        translateX.value = withSpring(SCREEN_WIDTH * 1.5, { damping: 20, stiffness: 90 }, () => {
-          if (voteType) handleSwipeEnd(voteType);
-        });
+        // Trigger callback immediately, don't wait for animation
+        handleSwipeEnd(voteType);
+        translateX.value = withSpring(SCREEN_WIDTH * 1.5, { damping: 20, stiffness: 90 });
         translateY.value = withSpring(0, { damping: 20, stiffness: 90 });
       } else if (translationX < -SWIPE_THRESHOLD && velocityX < 0) {
         voteType = 'doesnt_work';
-        translateX.value = withSpring(-SCREEN_WIDTH * 1.5, { damping: 20, stiffness: 90 }, () => {
-          if (voteType) handleSwipeEnd(voteType);
-        });
+        // Trigger callback immediately, don't wait for animation
+        handleSwipeEnd(voteType);
+        translateX.value = withSpring(-SCREEN_WIDTH * 1.5, { damping: 20, stiffness: 90 });
         translateY.value = withSpring(0, { damping: 20, stiffness: 90 });
       } else {
         // Snap back if threshold not met
@@ -186,6 +186,14 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.3,
       shadowRadius: 12,
       elevation: 8,
+    ...(Platform.OS === 'web'
+      ? {
+          // Improve gesture reliability on web by disabling native scrolling/selecting during drag
+          touchAction: 'none' as unknown as undefined,
+          userSelect: 'none' as unknown as undefined,
+          cursor: 'grab' as unknown as undefined,
+        }
+      : {}),
   },
   image: {
     width: '100%',

@@ -37,6 +37,37 @@ export function useVotes() {
     },
   });
 
+  // Cast multiple votes in a single request (batch upsert)
+  const castVotesBatchMutation = useMutation({
+    mutationFn: async (
+      votes: Array<{
+        optionId: string;
+        voteType: VoteType;
+      }>
+    ) => {
+      if (!votes.length) return [] as any[];
+
+      const payload = votes.map((v) => ({
+        poll_option_id: v.optionId,
+        user_id: user!.id,
+        vote_type: v.voteType,
+      }));
+
+      const { data, error } = await supabase
+        .from('votes')
+        .upsert(payload)
+        .select();
+
+      if (error) throw error;
+      return data ?? [];
+    },
+    onSuccess: () => {
+      // Invalidate once after the whole batch
+      queryClient.invalidateQueries({ queryKey: ['poll'] });
+      queryClient.invalidateQueries({ queryKey: ['polls'] });
+    },
+  });
+
   // Delete vote mutation
   const deleteVoteMutation = useMutation({
     mutationFn: async (optionId: string) => {
@@ -56,8 +87,10 @@ export function useVotes() {
 
   return {
     castVote: castVoteMutation.mutateAsync,
+    castVotesBatch: castVotesBatchMutation.mutateAsync,
     deleteVote: deleteVoteMutation.mutateAsync,
     isVoting: castVoteMutation.isPending,
+    isBatchVoting: castVotesBatchMutation.isPending,
     isDeleting: deleteVoteMutation.isPending,
   };
 }
