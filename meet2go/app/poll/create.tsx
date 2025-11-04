@@ -20,7 +20,6 @@ import { usePolls } from '@/src/hooks/usePolls';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
-import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 interface PollOption {
   name: string;
@@ -156,9 +155,7 @@ export default function CreatePollScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            <RoughNotationWrapper type="highlight" color="#FFE4B5" show={true}>
-              <Text style={styles.title}>ADD OPTIONS</Text>
-            </RoughNotationWrapper>
+            <Text style={styles.title}>ADD OPTIONS</Text>
             <Text style={styles.pollNameDisplay}>{pollName}</Text>
 
             {options.length > 0 && (
@@ -335,6 +332,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: spacing.sm,
+    width: '100%',
   },
   collapsedRow: {
     height: 0,

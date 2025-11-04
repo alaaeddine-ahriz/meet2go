@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -22,11 +22,7 @@ export default function ResultsScreen() {
   const { poll, isLoading, hasVoted } = usePoll(id);
   const { quest } = useQuest(poll?.quest_id);
 
-  // Ensure hooks are declared before any early returns
-  const [headerHeight, setHeaderHeight] = useState<number>(0);
-  const scrollPaddingTop = useMemo(() => {
-    return headerHeight > 0 ? headerHeight + spacing.lg : spacing.xxl + 40 + spacing.xl;
-  }, [headerHeight]);
+  // Header is part of the static layout; no dynamic top padding needed.
 
   if (isLoading) {
     return (
@@ -72,7 +68,6 @@ export default function ResultsScreen() {
         {/* Header */}
         <View
           style={styles.headerContainer}
-          onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
         >
           <View style={styles.headerCenter}>
             <RoughNotationWrapper type="highlight" color="#98FB98" show={true}>
@@ -84,7 +79,7 @@ export default function ResultsScreen() {
           </View>
         </View>
 
-        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: scrollPaddingTop }]}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.content}>
             {/* --- Podium --- */}
             {sortedOptions.length > 0 && (
@@ -189,7 +184,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingTop: spacing.xxl + 40 + spacing.xl,
+    paddingTop: 0,
     paddingBottom: 140,
   },
   headerContainer: {
@@ -197,11 +192,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xxl + 40,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
   },
   headerTitle: {
     ...typography.headline,
