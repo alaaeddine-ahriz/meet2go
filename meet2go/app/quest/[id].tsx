@@ -9,15 +9,15 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import { useQuest } from '@/src/hooks/useQuests';
 import { usePolls } from '@/src/hooks/usePolls';
 import { useAuth } from '@/src/hooks/useAuth';
 import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography, shadows } from '@/src/constants/theme';
+import { colors, spacing, typography } from '@/src/constants/theme';
 import { Vote } from '@/src/types';
 import PaperBackground from '@/src/components/PaperBackground';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function QuestDetailScreen() {
   const router = useRouter();
@@ -107,11 +107,10 @@ export default function QuestDetailScreen() {
     <PaperBackground>
       <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.iconButton} accessibilityLabel="Back">
-          <Image source={require('@/assets/icons/arrow-left.png')} style={{ width: 24, height: 24 }} />
-        </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>{quest.name}</Text>
+          <RoughNotationWrapper type="highlight" color="#FFB6C1" show={true}>
+            <Text style={styles.headerTitle}>{quest.name}</Text>
+          </RoughNotationWrapper>
           <Text style={styles.headerDate}>{formattedDate}</Text>
           {!!quest?.members_profiles?.length && (
             <View style={styles.avatarRow}>
@@ -136,9 +135,6 @@ export default function QuestDetailScreen() {
             </View>
           )}
         </View>
-        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.iconButton} accessibilityLabel="Home">
-          <Ionicons name="home-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
@@ -201,9 +197,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
     width: '100%',
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.md,
@@ -216,7 +209,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   headerCenter: {
-    flex: 1,
+    width: '100%',
     alignItems: 'center',
   },
   avatarRow: {
@@ -335,20 +328,5 @@ const styles = StyleSheet.create({
   createButton: {
     marginTop: spacing.sm,
     width: '100%',
-  },
-  
-  iconButton: {
-    padding: spacing.sm,
-  },
-  glassButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.glass,
   },
 });

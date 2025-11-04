@@ -12,12 +12,12 @@ import {
   Keyboard,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { usePolls } from '@/src/hooks/usePolls';
 import { useVotes } from '@/src/hooks/useVotes';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function AddOptionScreen() {
   const router = useRouter();
@@ -85,10 +85,9 @@ export default function AddOptionScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={28} color={colors.text} />
-            </TouchableOpacity>
-            <Text style={styles.title}>ADD OPTIONS</Text>
+            <RoughNotationWrapper type="highlight" color="#FFE4B5" show={true}>
+              <Text style={styles.title}>ADD OPTIONS</Text>
+            </RoughNotationWrapper>
           </View>
 
           <View style={styles.form}>
@@ -167,18 +166,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
     paddingTop: spacing.xxl + 40,
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,
   },
-  backButton: {
-    marginRight: spacing.md,
-  },
   title: {
     ...typography.headline,
     color: colors.text,
+    textAlign: 'center',
   },
   form: {
     padding: spacing.xl,

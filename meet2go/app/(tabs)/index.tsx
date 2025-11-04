@@ -15,13 +15,14 @@ import {
   Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useQuests } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { Quest } from '@/src/types';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { ProfileIcon } from '@/src/components/icons/ProfileIcon';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -125,13 +126,17 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>UPCOMING</Text>
+          <View style={styles.titleContainer}>
+            <RoughNotationWrapper type="highlight" color="#FFD700" show={true}>
+              <Text style={styles.headerTitle}>UPCOMING</Text>
+            </RoughNotationWrapper>
+          </View>
           <TouchableOpacity
             onPress={handleProfilePress}
-            style={styles.profileButton}
+            style={styles.profileLink}
             activeOpacity={0.7}
           >
-            <Ionicons name="person-circle-outline" size={32} color={colors.text} />
+            <ProfileIcon size={32} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -169,43 +174,50 @@ export default function HomeScreen() {
       </View>
 
       <Modal visible={showJoinModal} transparent animationType="fade" onRequestClose={() => setShowJoinModal(false)}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.modalOverlay}>
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ width: '100%' }}>
-              <View style={styles.modalCard}>
-                <Text style={[typography.headline, { textAlign: 'center', color: colors.text, marginBottom: spacing.md }]}>JOIN QUEST</Text>
-                <Input
-                  placeholder="Enter quest code"
-                  value={joinCode}
-                  onChangeText={setJoinCode}
-                  autoCapitalize="characters"
-                  maxLength={10}
-                  style={styles.joinInput}
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback onPress={() => {
+            setShowJoinModal(false);
+            setJoinCode('');
+            Keyboard.dismiss();
+          }}>
+            <View style={styles.modalOverlayTouchable} />
+          </TouchableWithoutFeedback>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalContentContainer}>
+            <View style={styles.modalCard}>
+              <RoughNotationWrapper type="highlight" color="#87CEEB" show={true}>
+                <Text style={[typography.headline, { textAlign: 'center', color: colors.text, marginBottom: spacing.sm }]}>JOIN QUEST</Text>
+              </RoughNotationWrapper>
+              <Input
+                placeholder="Enter quest code"
+                value={joinCode}
+                onChangeText={setJoinCode}
+                autoCapitalize="characters"
+                maxLength={10}
+                style={styles.joinInput}
+              />
+              <View style={styles.joinButtonRow}>
+                <Button
+                  title="CANCEL"
+                  onPress={() => {
+                    setShowJoinModal(false);
+                    setJoinCode('');
+                  }}
+                  variant="secondary"
+                  style={styles.joinActionButton}
+                  fullWidth={false}
                 />
-                <View style={styles.joinButtonRow}>
-                  <Button
-                    title="CANCEL"
-                    onPress={() => {
-                      setShowJoinModal(false);
-                      setJoinCode('');
-                    }}
-                    variant="secondary"
-                    style={styles.joinActionButton}
-                    fullWidth={false}
-                  />
-                  <Button
-                    title="JOIN"
-                    onPress={handleJoinQuest}
-                    disabled={isJoining || !joinCode.trim()}
-                    loading={isJoining}
-                    style={styles.joinActionButton}
-                    fullWidth={false}
-                  />
-                </View>
+                <Button
+                  title="JOIN"
+                  onPress={handleJoinQuest}
+                  disabled={isJoining || !joinCode.trim()}
+                  loading={isJoining}
+                  style={styles.joinActionButton}
+                  fullWidth={false}
+                />
               </View>
-            </KeyboardAvoidingView>
-          </View>
-        </TouchableWithoutFeedback>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
     </View>
     </PaperBackground>
@@ -233,22 +245,32 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    position: 'relative',
     width: '100%',
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 50,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     ...typography.headline,
     color: colors.text,
     fontWeight: '700',
-    flex: 1,
     textAlign: 'center',
   },
-  profileButton: {
+  profileLink: {
+    position: 'absolute',
+    right: spacing.md,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
     padding: spacing.xs,
+    opacity: 0.5,
   },
   joinButton: {
     marginBottom: spacing.sm,
@@ -264,7 +286,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   joinInput: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.xs,
   },
   joinButtonRow: {
     flexDirection: 'row',
@@ -329,6 +351,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xl,
+    position: 'relative',
+  },
+  modalOverlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContentContainer: {
+    width: '100%',
+    zIndex: 1,
   },
   modalCard: {
     width: '100%',

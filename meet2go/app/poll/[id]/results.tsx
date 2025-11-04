@@ -6,16 +6,15 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { usePoll } from '@/src/hooks/usePolls';
 import { useQuest } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function ResultsScreen() {
   const router = useRouter();
@@ -66,21 +65,14 @@ export default function ResultsScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.headerContainer}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
-            <Image
-              source={require('@/assets/icons/arrow-left.png')}
-              style={{ width: 24, height: 24 }}
-            />
-          </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>{poll.name}</Text>
+            <RoughNotationWrapper type="highlight" color="#98FB98" show={true}>
+              <Text style={styles.headerTitle}>{poll.name}</Text>
+            </RoughNotationWrapper>
             {!!quest?.name && (
               <Text style={styles.headerSubtitle}>{quest.name}</Text>
             )}
           </View>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/(tabs)')}>
-            <Ionicons name="home-outline" size={24} color={colors.text} />
-          </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -192,9 +184,6 @@ const styles = StyleSheet.create({
     paddingBottom: 140,
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
     width: '100%',
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.md,
@@ -210,10 +199,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: '700',
     textAlign: 'center',
-    flex: 1,
   },
   headerCenter: {
-    flex: 1,
+    width: '100%',
     alignItems: 'center',
   },
   headerSubtitle: {
@@ -317,5 +305,4 @@ const styles = StyleSheet.create({
   },
   errorText: { ...typography.body, color: colors.error },
   voteButton: { minWidth: 200 },
-  iconButton: { padding: spacing.sm },
 });

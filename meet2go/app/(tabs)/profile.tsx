@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function ProfileScreen() {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -30,6 +31,52 @@ export default function ProfileScreen() {
 
       if (error) throw error;
       return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch stats: quests where user is a member
+  const { data: questsCount } = useQuery({
+    queryKey: ['userQuestsCount', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+
+      const { count, error } = await supabase
+        .from('quest_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch stats: polls in quests where user is a member
+  const { data: pollsCount } = useQuery({
+    queryKey: ['userPollsCount', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+
+      // First get all quest IDs where user is a member
+      const { data: memberData, error: memberError } = await supabase
+        .from('quest_members')
+        .select('quest_id')
+        .eq('user_id', user.id);
+
+      if (memberError) throw memberError;
+      if (!memberData || memberData.length === 0) return 0;
+
+      const questIds = memberData.map(m => m.quest_id);
+
+      // Then count polls in those quests
+      const { count, error } = await supabase
+        .from('polls')
+        .select('*', { count: 'exact', head: true })
+        .in('quest_id', questIds);
+
+      if (error) throw error;
+      return count || 0;
     },
     enabled: !!user?.id,
   });
@@ -73,13 +120,28 @@ export default function ProfileScreen() {
     <PaperBackground>
       <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.headerTitle}>PROFILE</Text>
+        <View style={styles.titleContainer}>
+          <RoughNotationWrapper type="highlight" color="#DDA0DD" show={true}>
+            <Text style={styles.headerTitle}>PROFILE</Text>
+          </RoughNotationWrapper>
+        </View>
 
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>
               {displayName.charAt(0).toUpperCase()}
             </Text>
+          </View>
+
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{questsCount ?? 0}</Text>
+              <Text style={styles.statLabel}>QUESTS</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{pollsCount ?? 0}</Text>
+              <Text style={styles.statLabel}>POLLS</Text>
+            </View>
           </View>
 
           <View style={styles.infoContainer}>
@@ -122,12 +184,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xl,
   },
+  titleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: spacing.xxl,
+  },
   headerTitle: {
     ...typography.headline,
     color: colors.text,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: spacing.xxl,
   },
   profileSection: {
     flex: 1,
@@ -147,6 +213,31 @@ const styles = StyleSheet.create({
     ...typography.title,
     color: colors.surface,
     fontSize: 48,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    marginBottom: spacing.xl,
+    gap: spacing.xl,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statValue: {
+    ...typography.headline,
+    color: colors.text,
+    fontSize: 32,
+    fontWeight: '700',
+    marginBottom: spacing.xs,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontSize: 12,
   },
   infoContainer: {
     width: '100%',

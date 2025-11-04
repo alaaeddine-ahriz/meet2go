@@ -15,6 +15,7 @@ import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { VoteType, PollOption } from '@/src/types';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function VoteScreen() {
   const router = useRouter();
@@ -91,13 +92,6 @@ export default function VoteScreen() {
           variant="primary"
           style={styles.addOptionButton}
         />
-
-        <TouchableOpacity
-          style={styles.homeButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="home-outline" size={32} color={colors.text} />
-        </TouchableOpacity>
       </View>
     );
   }
@@ -110,7 +104,9 @@ export default function VoteScreen() {
     <PaperBackground>
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.pollName}>{poll.name}</Text>
+        <RoughNotationWrapper type="highlight" color="#B0E0E6" show={true}>
+          <Text style={styles.pollName}>{poll.name}</Text>
+        </RoughNotationWrapper>
         <Text style={styles.progress}>
           {currentIndex + 1}/{options.length}
         </Text>
@@ -230,11 +226,6 @@ const styles = StyleSheet.create({
   addOptionButton: {
     marginBottom: spacing.xxl,
     minWidth: 250,
-  },
-  homeButton: {
-    position: 'absolute',
-    bottom: spacing.xl,
-    right: spacing.xl,
   },
 });
 

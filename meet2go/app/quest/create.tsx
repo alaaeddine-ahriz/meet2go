@@ -17,6 +17,7 @@ import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { Ionicons } from '@expo/vector-icons';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function CreateQuestScreen() {
   const router = useRouter();
@@ -96,7 +97,9 @@ export default function CreateQuestScreen() {
           </>
         ) : (
           <>
-            <Text style={styles.title}>END DATE</Text>
+            <RoughNotationWrapper type="highlight" color="#F0E68C" show={true}>
+              <Text style={styles.title}>END DATE</Text>
+            </RoughNotationWrapper>
             <Text style={styles.questNameDisplay}>{questName}</Text>
             <TouchableOpacity
               style={styles.dateButton}

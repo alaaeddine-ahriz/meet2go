@@ -37,10 +37,12 @@
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+    "react-native-svg": "~15.8.0",
     "react-native-url-polyfill": "^3.0.0",
     "react-native-web": "~0.21.0",
     "react-native-webcrypto": "^1.0.0-alpha.3",
     "react-native-worklets": "0.5.1",
+    "react-rough-notation": "^1.0.8",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
