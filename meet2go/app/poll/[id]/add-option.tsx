@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   optionInput: {
-    flex: 1,
+    width: '100%',
     backgroundColor: 'transparent',
     borderWidth: 0,
     borderColor: 'transparent',
