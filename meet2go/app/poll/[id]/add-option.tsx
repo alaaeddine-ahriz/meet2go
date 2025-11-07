@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   TouchableOpacity,
   TextInput,
   Keyboard,
@@ -18,6 +17,7 @@ import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { showAlert } from '@/src/utils/alert';
 
 export default function AddOptionScreen() {
   const router = useRouter();
@@ -55,7 +55,7 @@ export default function AddOptionScreen() {
     const items = [...options];
     if (currentOption.trim()) items.push(currentOption.trim());
     if (items.length === 0) {
-      Alert.alert('Error', 'Please add at least one option');
+      showAlert('Error', 'Please add at least one option');
       return;
     }
     try {
@@ -66,11 +66,11 @@ export default function AddOptionScreen() {
           await castVote({ optionId: option.id, voteType: 'amazing' });
         }
       }
-      Alert.alert('Success', 'Options added!', [
+      showAlert('Success', 'Options added!', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to add options');
+      showAlert('Error', error.message || 'Failed to add options');
     }
   };
 
@@ -145,6 +145,9 @@ export default function AddOptionScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.previousButton}>
+            <Text style={styles.previousText}>← PREVIOUS</Text>
+          </TouchableOpacity>
           <Button
             title="ADD ALL"
             onPress={submitAll}
@@ -234,8 +237,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   addAllButton: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     width: '100%',
+  },
+  previousButton: {
+    alignSelf: 'flex-start',
+    marginBottom: spacing.sm,
+  },
+  previousText: {
+    ...typography.button,
+    color: colors.primary,
   },
   footer: {
     paddingHorizontal: spacing.xl,

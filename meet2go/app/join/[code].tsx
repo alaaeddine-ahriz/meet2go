@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import PaperBackground from '@/src/components/PaperBackground';
 import { useQuests } from '@/src/hooks/useQuests';
 import { colors, spacing, typography } from '@/src/constants/theme';
+import { showAlert } from '@/src/utils/alert';
 
 export default function JoinQuestScreen() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function JoinQuestScreen() {
     try {
       const quest = await joinQuest(code!);
       
-      Alert.alert(
+      showAlert(
         'Success!',
         `You joined "${quest.name}"`,
         [
@@ -31,7 +32,7 @@ export default function JoinQuestScreen() {
         ]
       );
     } catch (error: any) {
-      Alert.alert(
+      showAlert(
         'Error',
         error.message || 'Failed to join quest',
         [

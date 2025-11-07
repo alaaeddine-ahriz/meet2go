@@ -7,7 +7,6 @@ import {
   RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
-  Alert,
   Modal,
   KeyboardAvoidingView,
   Platform,
@@ -23,6 +22,7 @@ import PaperBackground from '@/src/components/PaperBackground';
 import { Quest } from '@/src/types';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 import { ProfileIcon } from '@/src/components/icons/ProfileIcon';
+import { showAlert } from '@/src/utils/alert';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -46,7 +46,7 @@ export default function HomeScreen() {
 
   const handleJoinQuest = async () => {
     if (!joinCode.trim()) {
-      Alert.alert('Error', 'Please enter a quest code');
+      showAlert('Error', 'Please enter a quest code');
       return;
     }
 
@@ -55,7 +55,7 @@ export default function HomeScreen() {
       setJoinCode('');
       setShowJoinModal(false);
       
-      Alert.alert(
+      showAlert(
         'Success!',
         `You joined "${quest.name}"`,
         [
@@ -69,7 +69,7 @@ export default function HomeScreen() {
         ]
       );
     } catch (error: any) {
-      Alert.alert(
+      showAlert(
         'Error',
         error.message || 'Failed to join quest. Please check the code and try again.'
       );

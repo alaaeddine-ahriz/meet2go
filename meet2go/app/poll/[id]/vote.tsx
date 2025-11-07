@@ -64,6 +64,12 @@ export default function VoteScreen() {
     router.push(`/poll/${id}/add-option`);
   };
 
+  const handleGoToQuest = () => {
+    if (poll?.quest_id) {
+      router.push(`/quest/${poll.quest_id}`);
+    }
+  };
+
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
@@ -84,24 +90,33 @@ export default function VoteScreen() {
   // All cards voted
   if (currentIndex >= options.length) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.completionTitle}>YOU'RE SET!</Text>
-        <Text style={styles.completionEmoji}>🚀</Text>
-        {isBatchVoting && (
-          <ActivityIndicator size="small" color={colors.primary} />
-        )}
-        
-        <TouchableOpacity onPress={handleSeeResults} style={styles.resultsLink}>
-          <Text style={styles.resultsLinkText}>SEE RESULTS</Text>
-        </TouchableOpacity>
+      <PaperBackground>
+        <View style={styles.centerContainer}>
+          <TouchableOpacity
+            style={styles.completionHomeButton}
+            onPress={handleGoToQuest}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="home" size={28} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.completionTitle}>YOU'RE SET!</Text>
+          <Text style={styles.completionEmoji}>🚀</Text>
+          {isBatchVoting && (
+            <ActivityIndicator size="small" color={colors.primary} />
+          )}
+          
+          <TouchableOpacity onPress={handleSeeResults} style={styles.resultsLink}>
+            <Text style={styles.resultsLinkText}>SEE RESULTS</Text>
+          </TouchableOpacity>
 
-        <Button
-          title="+ ADD OPTION"
-          onPress={handleAddOption}
-          variant="primary"
-          style={styles.addOptionButton}
-        />
-      </View>
+          <Button
+            title="+ ADD OPTION"
+            onPress={handleAddOption}
+            variant="primary"
+            style={styles.addOptionButton}
+          />
+        </View>
+      </PaperBackground>
     );
   }
 
@@ -113,6 +128,13 @@ export default function VoteScreen() {
     <PaperBackground>
     <View style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={handleGoToQuest}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="home" size={28} color={colors.text} />
+        </TouchableOpacity>
         <RoughNotationWrapper type="highlight" color="#B0E0E6" show={true}>
           <Text style={styles.pollName}>{poll.name}</Text>
         </RoughNotationWrapper>
@@ -168,12 +190,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
     padding: spacing.xl,
+    position: 'relative',
+  },
+  completionHomeButton: {
+    position: 'absolute',
+    left: spacing.xl,
+    top: spacing.xxl + 40,
+    zIndex: 10,
+    padding: spacing.xs,
   },
   header: {
     paddingTop: spacing.xxl + 40,
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,
     alignItems: 'center',
+    position: 'relative',
+  },
+  homeButton: {
+    position: 'absolute',
+    left: spacing.xl,
+    top: spacing.xxl + 40,
+    zIndex: 10,
+    padding: spacing.xs,
   },
   pollName: {
     ...typography.headline,

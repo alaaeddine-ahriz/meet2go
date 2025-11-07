@@ -18,6 +18,7 @@ import { colors, spacing, typography } from '@/src/constants/theme';
 import { Vote } from '@/src/types';
 import PaperBackground from '@/src/components/PaperBackground';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function QuestDetailScreen() {
   const router = useRouter();
@@ -113,6 +114,13 @@ export default function QuestDetailScreen() {
       <View
         style={styles.headerContainer}
       >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.replace('/(tabs)')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={28} color={colors.text} />
+        </TouchableOpacity>
         <View style={styles.headerCenter}>
           <RoughNotationWrapper type="highlight" color="#FFB6C1" show={true}>
             <Text style={styles.headerTitle}>{quest.name}</Text>
@@ -208,6 +216,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xxl + 40,
     backgroundColor: 'transparent',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: spacing.md,
+    top: spacing.xxl + 40,
+    zIndex: 10,
+    padding: spacing.xs,
   },
   headerCenter: {
     width: '100%',

@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   TouchableOpacity,
   TextInput,
   Image,
@@ -20,6 +19,7 @@ import { usePolls } from '@/src/hooks/usePolls';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography, shadows } from '@/src/constants/theme';
+import { showAlert } from '@/src/utils/alert';
 
 interface PollOption {
   name: string;
@@ -52,7 +52,7 @@ export default function CreatePollScreen() {
 
   const handleNext = () => {
     if (!pollName.trim()) {
-      Alert.alert('Error', 'Please enter a poll name');
+      showAlert('Error', 'Please enter a poll name');
       return;
     }
     setStep('options');
@@ -62,7 +62,7 @@ export default function CreatePollScreen() {
 
   const addOption = () => {
     if (!currentOption.trim()) {
-      Alert.alert('Error', 'Please enter an option name');
+      showAlert('Error', 'Please enter an option name');
       return;
     }
 
@@ -101,7 +101,7 @@ export default function CreatePollScreen() {
     }
 
     if (finalOptions.length === 0) {
-      Alert.alert('Error', 'Please add at least one option');
+      showAlert('Error', 'Please add at least one option');
       return;
     }
 
@@ -120,11 +120,9 @@ export default function CreatePollScreen() {
         });
       }
 
-      Alert.alert('Success', 'Poll created!', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      router.back();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create poll');
+      showAlert('Error', error.message || 'Failed to create poll');
     }
   };
 
@@ -353,6 +351,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 38,
     fontFamily: 'Komikask',
+    ...(Platform.OS === 'web' && { width: '100%', maxWidth: '100%' }),
   },
   collapsedInput: {
     height: 0,

@@ -98,6 +98,13 @@ export const shadows = {
     shadowRadius: 10,
     elevation: 5,
   },
+  medium: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
 };
 
 // Gesture thresholds from PRD

@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { Link } from 'expo-router';
 import * as Linking from 'expo-linking';
@@ -19,6 +18,7 @@ import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { showAlert } from '@/src/utils/alert';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -29,7 +29,7 @@ export default function SignInScreen() {
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showAlert('Error', 'Please fill in all fields');
       return;
     }
 
@@ -37,7 +37,7 @@ export default function SignInScreen() {
     try {
       await signIn(email, password);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to sign in');
+      showAlert('Error', error.message || 'Failed to sign in');
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ export default function SignInScreen() {
         }
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to start Google sign-in');
+      showAlert('Error', error.message || 'Failed to start Google sign-in');
     } finally {
       setOauthLoading(false);
     }

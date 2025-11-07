@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { useAuth } from '@/src/hooks/useAuth';
@@ -15,6 +14,7 @@ import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { showAlert } from '@/src/utils/alert';
 
 export default function SignUpScreen() {
   const [displayName, setDisplayName] = useState('');
@@ -26,22 +26,22 @@ export default function SignUpScreen() {
 
   const handleSignUp = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      showAlert('Error', 'Please fill in all required fields');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      showAlert('Error', 'Password must be at least 6 characters');
       return;
     }
 
     setLoading(true);
     try {
       await signUp(email, password, displayName || undefined);
-      Alert.alert('Success', 'Account created! Please sign in.');
+      showAlert('Success', 'Account created! Please sign in.');
       router.replace('/(auth)/sign-in');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to sign up');
+      showAlert('Error', error.message || 'Failed to sign up');
     } finally {
       setLoading(false);
     }

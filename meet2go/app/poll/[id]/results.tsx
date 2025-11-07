@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { usePoll } from '@/src/hooks/usePolls';
 import { useQuest } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
@@ -21,6 +22,12 @@ export default function ResultsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { poll, isLoading, hasVoted } = usePoll(id);
   const { quest } = useQuest(poll?.quest_id);
+
+  const handleGoToQuest = () => {
+    if (poll?.quest_id) {
+      router.push(`/quest/${poll.quest_id}`);
+    }
+  };
 
   // Header is part of the static layout; no dynamic top padding needed.
 
@@ -69,6 +76,13 @@ export default function ResultsScreen() {
         <View
           style={styles.headerContainer}
         >
+          <TouchableOpacity
+            style={styles.homeButton}
+            onPress={handleGoToQuest}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="home" size={28} color={colors.text} />
+          </TouchableOpacity>
           <View style={styles.headerCenter}>
             <RoughNotationWrapper type="highlight" color="#98FB98" show={true}>
               <Text style={styles.headerTitle}>{poll.name}</Text>
@@ -192,6 +206,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xxl + 40,
+    position: 'relative',
+  },
+  homeButton: {
+    position: 'absolute',
+    left: spacing.md,
+    top: spacing.xxl + 40,
+    zIndex: 10,
+    padding: spacing.xs,
   },
   headerTitle: {
     ...typography.headline,

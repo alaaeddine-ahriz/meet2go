@@ -7,6 +7,8 @@ import { useFonts } from 'expo-font';
 import { queryClient } from '@/src/lib/queryClient';
 import { useAuth } from '@/src/hooks/useAuth';
 import { StyleSheet } from 'react-native';
+import { ToastProvider } from '@/src/components/ui/ToastProvider';
+import { AlertDialogProvider } from '@/src/components/ui/AlertDialogProvider';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -75,7 +77,11 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={styles.container}>
-        <RootLayoutNav />
+        <ToastProvider>
+          <AlertDialogProvider>
+            <RootLayoutNav />
+          </AlertDialogProvider>
+        </ToastProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

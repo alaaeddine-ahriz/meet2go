@@ -4,9 +4,10 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import PaperBackground from '@/src/components/PaperBackground';
 import { useAuth } from '@/src/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +15,8 @@ import { supabase } from '@/src/lib/supabase';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { Ionicons } from '@expo/vector-icons';
+import { showAlert } from '@/src/utils/alert';
 
 export default function ProfileScreen() {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -83,38 +86,27 @@ export default function ProfileScreen() {
   });
 
   const handleSignOut = () => {
-    if (Platform.OS === 'web') {
-      // On web, use browser confirm for better compatibility
-      const confirmed = window.confirm('Are you sure you want to sign out?');
-      if (confirmed) {
-        signOut().catch((error: any) => {
-          window.alert(error.message || 'Failed to sign out');
-        });
-      }
-    } else {
-      // On native, use Alert
-      Alert.alert(
-        'Sign Out',
-        'Are you sure you want to sign out?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
+    showAlert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (error: any) {
+              showAlert('Error', error.message || 'Failed to sign out');
+            }
           },
-          {
-            text: 'Sign Out',
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                await signOut();
-              } catch (error: any) {
-                Alert.alert('Error', error.message || 'Failed to sign out');
-              }
-            },
-          },
-        ]
-      );
-    }
+        },
+      ]
+    );
   };
 
   if (authLoading || profileLoading) {
@@ -128,15 +120,29 @@ export default function ProfileScreen() {
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'User';
   const email = user?.email || '';
 
+  const router = useRouter();
+
   return (
     <PaperBackground>
       <View style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.titleContainer}>
-          <RoughNotationWrapper type="highlight" color="#DDA0DD" show={true}>
-            <Text style={styles.headerTitle}>PROFILE</Text>
-          </RoughNotationWrapper>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              router.dismissAll();
+              router.replace('/(tabs)');
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={28} color={colors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerCenter}>
+            <RoughNotationWrapper type="highlight" color="#DDA0DD" show={true}>
+              <Text style={styles.headerTitle}>PROFILE</Text>
+            </RoughNotationWrapper>
+          </View>
         </View>
+        <View style={styles.content}>
 
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
@@ -190,9 +196,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
+  headerContainer: {
+    width: '100%',
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xxl + 40,
+    backgroundColor: 'transparent',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: spacing.md,
+    top: spacing.xxl + 40,
+    zIndex: 10,
+    padding: spacing.xs,
+  },
+  headerCenter: {
+    width: '100%',
+    alignItems: 'center',
+  },
   content: {
     flex: 1,
-    paddingTop: spacing.xxl + 40,
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xl,
   },

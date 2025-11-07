@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Share,
   TouchableOpacity,
   TextInput,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -18,6 +18,7 @@ import { colors, spacing, typography, shadows } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { Ionicons } from '@expo/vector-icons';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { showAlert } from '@/src/utils/alert';
 
 export default function CreateQuestScreen() {
   const router = useRouter();
@@ -27,9 +28,28 @@ export default function CreateQuestScreen() {
   const [endDate, setEndDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const todayIso = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const endDateIso = useMemo(() => endDate.toISOString().split('T')[0], [endDate]);
+  const webDateInputStyles = useMemo<React.CSSProperties>(
+    () => ({
+      width: '100%',
+      padding: `${spacing.md}px`,
+      fontSize: '16px',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: colors.border,
+      borderRadius: '8px',
+      backgroundColor: colors.background,
+      color: colors.text,
+      fontFamily: typography.body.fontFamily || 'system-ui',
+      boxSizing: 'border-box',
+    }),
+    []
+  );
+
   const handleNext = () => {
     if (!questName.trim()) {
-      Alert.alert('Error', 'Please enter a quest name');
+      showAlert('Error', 'Please enter a quest name');
       return;
     }
     setStep('date');
@@ -42,7 +62,7 @@ export default function CreateQuestScreen() {
         endDate: endDate.toISOString(),
       });
 
-      Alert.alert(
+      showAlert(
         'Quest Created!',
         'Would you like to share the invite link?',
         [
@@ -53,11 +73,12 @@ export default function CreateQuestScreen() {
           {
             text: 'Later',
             onPress: () => router.replace(`/quest/${quest.id}`),
+            style: 'cancel',
           },
         ]
       );
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create quest');
+      showAlert('Error', error.message || 'Failed to create quest');
     }
   };
 
@@ -115,20 +136,85 @@ export default function CreateQuestScreen() {
               <Ionicons name="calendar-outline" size={24} color={colors.primary} />
             </TouchableOpacity>
 
-            {showDatePicker && (
-              <DateTimePicker
-                value={endDate}
-                mode="date"
-                display="default"
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(Platform.OS === 'ios');
-                  if (selectedDate) {
-                    setEndDate(selectedDate);
-                  }
-                }}
-                minimumDate={new Date()}
-              />
-            )}
+            <Modal
+              transparent
+              visible={showDatePicker}
+              animationType="fade"
+              onRequestClose={() => setShowDatePicker(false)}
+            >
+              <TouchableOpacity
+                style={styles.modalOverlay}
+                activeOpacity={1}
+                onPress={Platform.OS === 'web' ? undefined : () => setShowDatePicker(false)}
+              >
+                <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+                  <Text style={styles.modalTitle}>Select Date</Text>
+                  
+                  {Platform.OS === 'web' ? (
+                    <View style={styles.webDateContainer}>
+                      {/* eslint-disable-next-line react/no-unknown-property */}
+                      {/* @ts-ignore - web-only element */}
+                      <input
+                        type="date"
+                        value={endDateIso}
+                        min={todayIso}
+                        onChange={(e: any) => {
+                          if (e.target?.value) {
+                            setEndDate(new Date(e.target.value));
+                          }
+                        }}
+                        style={webDateInputStyles}
+                      />
+                    </View>
+                  ) : (
+                    <View style={styles.datePickerContainer}>
+                      <DateTimePicker
+                        value={endDate}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={(event, selectedDate) => {
+                          if (Platform.OS === 'android') {
+                            setShowDatePicker(false);
+                          }
+                          if (selectedDate) {
+                            setEndDate(selectedDate);
+                          }
+                        }}
+                        minimumDate={new Date()}
+                        style={styles.datePicker}
+                      />
+                    </View>
+                  )}
+                  
+                  <View style={styles.modalButtons}>
+                    {Platform.OS === 'ios' && (
+                      <>
+                        <TouchableOpacity
+                          style={[styles.modalButton, styles.modalButtonCancel]}
+                          onPress={() => setShowDatePicker(false)}
+                        >
+                          <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.modalButton, styles.modalButtonConfirm]}
+                          onPress={() => setShowDatePicker(false)}
+                        >
+                          <Text style={styles.modalButtonTextConfirm}>Done</Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                    {Platform.OS === 'web' && (
+                      <TouchableOpacity
+                        style={[styles.modalButton, styles.modalButtonConfirm]}
+                        onPress={() => setShowDatePicker(false)}
+                      >
+                        <Text style={styles.modalButtonTextConfirm}>Done</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </Modal>
 
             <Button
               title="CREATE"
@@ -149,7 +235,7 @@ export default function CreateQuestScreen() {
         onPress={() => router.back()}
       >
         <Ionicons name="close" size={24} color={colors.text} />
-      </TouchableOpacity>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </PaperBackground>
   );
@@ -230,5 +316,129 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.glass,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+    ...shadows.medium,
+  },
+  modalTitle: {
+    ...typography.headline,
+    fontSize: 20,
+    color: colors.text,
+    marginBottom: spacing.lg,
+    textAlign: 'center',
+  },
+  datePickerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: spacing.md,
+  },
+  datePicker: {
+    width: '100%',
+  },
+  webDateContainer: {
+    marginVertical: spacing.md,
+    alignItems: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+    marginTop: spacing.lg,
+  },
+  modalButton: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonCancel: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  modalButtonConfirm: {
+    backgroundColor: colors.primary,
+  },
+  modalButtonTextCancel: {
+    ...typography.button,
+    color: colors.textSecondary,
+    fontSize: 16,
+  },
+  modalButtonTextConfirm: {
+    ...typography.button,
+    color: colors.surface,
+    fontSize: 16,
+  },
+});
+
+const alertStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  dialog: {
+    backgroundColor: colors.background,
+    borderRadius: 16,
+    padding: spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+    ...shadows.medium,
+  },
+  title: {
+    ...typography.headline,
+    fontSize: 20,
+    color: colors.text,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  message: {
+    ...typography.body,
+    color: colors.textSecondary,
+    marginBottom: spacing.xl,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+  },
+  button: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 8,
+    backgroundColor: colors.primary,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  buttonText: {
+    ...typography.button,
+    color: colors.background,
+    fontSize: 16,
+  },
+  cancelButtonText: {
+    color: colors.textSecondary,
   },
 });
