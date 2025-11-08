@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { usePoll } from '@/src/hooks/usePolls';
+import { HomeIcon } from '@/src/components/icons';
 import { useQuest } from '@/src/hooks/useQuests';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
@@ -81,7 +81,7 @@ export default function ResultsScreen() {
             onPress={handleGoToQuest}
             activeOpacity={0.7}
           >
-            <Ionicons name="home" size={28} color={colors.text} />
+            <HomeIcon size={28} color={colors.text} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <RoughNotationWrapper type="highlight" color="#98FB98" show={true}>

@@ -32,17 +32,19 @@ export default function CreateQuestScreen() {
   const endDateIso = useMemo(() => endDate.toISOString().split('T')[0], [endDate]);
   const webDateInputStyles = useMemo<React.CSSProperties>(
     () => ({
-      width: '100%',
-      padding: `${spacing.md}px`,
-      fontSize: '16px',
+      width: '70%',
+      padding: `${spacing.lg}px`,
+      fontSize: '18px',
       borderWidth: '1px',
       borderStyle: 'solid',
       borderColor: colors.border,
-      borderRadius: '8px',
-      backgroundColor: colors.background,
+      borderRadius: '24px',
+      backgroundColor: colors.surface,
       color: colors.text,
       fontFamily: typography.body.fontFamily || 'system-ui',
       boxSizing: 'border-box',
+      outline: 'none',
+      textAlign: 'center',
     }),
     []
   );
@@ -119,102 +121,96 @@ export default function CreateQuestScreen() {
         ) : (
           <>
             <RoughNotationWrapper type="highlight" color="#F0E68C" show={true}>
-              <Text style={styles.title}>END DATE</Text>
+              <Text style={styles.title}>{questName}</Text>
             </RoughNotationWrapper>
-            <Text style={styles.questNameDisplay}>{questName}</Text>
-            <TouchableOpacity
-              style={styles.dateButton}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={styles.dateText}>
-                {endDate.toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </Text>
-              <Ionicons name="calendar-outline" size={24} color={colors.primary} />
-            </TouchableOpacity>
+            <Text style={styles.questNameDisplay}>END DATE</Text>
+            {Platform.OS === 'web' ? (
+              <View style={styles.webDateContainer}>
+                {/* eslint-disable-next-line react/no-unknown-property */}
+                {/* @ts-ignore - web-only element */}
+                <input
+                  type="date"
+                  value={endDateIso}
+                  min={todayIso}
+                  onChange={(e: any) => {
+                    if (e.target?.value) {
+                      setEndDate(new Date(e.target.value));
+                    }
+                  }}
+                  style={webDateInputStyles}
+                />
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={styles.dateButton}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text style={styles.dateText}>
+                    {endDate.toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                  <Ionicons name="calendar-outline" size={24} color={colors.primary} />
+                </TouchableOpacity>
 
-            <Modal
-              transparent
-              visible={showDatePicker}
-              animationType="fade"
-              onRequestClose={() => setShowDatePicker(false)}
-            >
-              <TouchableOpacity
-                style={styles.modalOverlay}
-                activeOpacity={1}
-                onPress={Platform.OS === 'web' ? undefined : () => setShowDatePicker(false)}
-              >
-                <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-                  <Text style={styles.modalTitle}>Select Date</Text>
-                  
-                  {Platform.OS === 'web' ? (
-                    <View style={styles.webDateContainer}>
-                      {/* eslint-disable-next-line react/no-unknown-property */}
-                      {/* @ts-ignore - web-only element */}
-                      <input
-                        type="date"
-                        value={endDateIso}
-                        min={todayIso}
-                        onChange={(e: any) => {
-                          if (e.target?.value) {
-                            setEndDate(new Date(e.target.value));
-                          }
-                        }}
-                        style={webDateInputStyles}
-                      />
+                <Modal
+                  transparent
+                  visible={showDatePicker}
+                  animationType="fade"
+                  onRequestClose={() => setShowDatePicker(false)}
+                >
+                  <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+                      <Text style={styles.modalTitle}>Select Date</Text>
+                      
+                      <View style={styles.datePickerContainer}>
+                        <DateTimePicker
+                          value={endDate}
+                          mode="date"
+                          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                          onChange={(event, selectedDate) => {
+                            if (Platform.OS === 'android') {
+                              setShowDatePicker(false);
+                            }
+                            if (selectedDate) {
+                              setEndDate(selectedDate);
+                            }
+                          }}
+                          minimumDate={new Date()}
+                          style={styles.datePicker}
+                        />
+                      </View>
+                      
+                      <View style={styles.modalButtons}>
+                        {Platform.OS === 'ios' && (
+                          <>
+                            <TouchableOpacity
+                              style={[styles.modalButton, styles.modalButtonCancel]}
+                              onPress={() => setShowDatePicker(false)}
+                            >
+                              <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.modalButton, styles.modalButtonConfirm]}
+                              onPress={() => setShowDatePicker(false)}
+                            >
+                              <Text style={styles.modalButtonTextConfirm}>Done</Text>
+                            </TouchableOpacity>
+                          </>
+                        )}
+                      </View>
                     </View>
-                  ) : (
-                    <View style={styles.datePickerContainer}>
-                      <DateTimePicker
-                        value={endDate}
-                        mode="date"
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={(event, selectedDate) => {
-                          if (Platform.OS === 'android') {
-                            setShowDatePicker(false);
-                          }
-                          if (selectedDate) {
-                            setEndDate(selectedDate);
-                          }
-                        }}
-                        minimumDate={new Date()}
-                        style={styles.datePicker}
-                      />
-                    </View>
-                  )}
-                  
-                  <View style={styles.modalButtons}>
-                    {Platform.OS === 'ios' && (
-                      <>
-                        <TouchableOpacity
-                          style={[styles.modalButton, styles.modalButtonCancel]}
-                          onPress={() => setShowDatePicker(false)}
-                        >
-                          <Text style={styles.modalButtonTextCancel}>Cancel</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={[styles.modalButton, styles.modalButtonConfirm]}
-                          onPress={() => setShowDatePicker(false)}
-                        >
-                          <Text style={styles.modalButtonTextConfirm}>Done</Text>
-                        </TouchableOpacity>
-                      </>
-                    )}
-                    {Platform.OS === 'web' && (
-                      <TouchableOpacity
-                        style={[styles.modalButton, styles.modalButtonConfirm]}
-                        onPress={() => setShowDatePicker(false)}
-                      >
-                        <Text style={styles.modalButtonTextConfirm}>Done</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </Modal>
+                  </TouchableOpacity>
+                </Modal>
+              </>
+            )}
 
             <Button
               title="CREATE"
@@ -254,6 +250,8 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.headline,
+    fontSize: 48,
+    lineHeight: 56,
     color: colors.text,
     textAlign: 'center',
     marginBottom: spacing.xxl,
@@ -263,7 +261,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: spacing.xl,
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
   },
   input: {
     width: '100%',
@@ -348,8 +347,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   webDateContainer: {
-    marginVertical: spacing.md,
+    width: '100%',
+    marginBottom: spacing.xl,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   modalButtons: {
     flexDirection: 'row',

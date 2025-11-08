@@ -7,8 +7,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { usePoll } from '@/src/hooks/usePolls';
+import { HomeIcon } from '@/src/components/icons';
 import { useVotes } from '@/src/hooks/useVotes';
 import { SwipeCard } from '@/src/components/voting/SwipeCard';
 import { Button } from '@/src/components/ui/Button';
@@ -97,7 +97,7 @@ export default function VoteScreen() {
             onPress={handleGoToQuest}
             activeOpacity={0.7}
           >
-            <Ionicons name="home" size={28} color={colors.text} />
+            <HomeIcon size={28} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.completionTitle}>YOU'RE SET!</Text>
           <Text style={styles.completionEmoji}>🚀</Text>
@@ -133,7 +133,7 @@ export default function VoteScreen() {
           onPress={handleGoToQuest}
           activeOpacity={0.7}
         >
-          <Ionicons name="home" size={28} color={colors.text} />
+          <HomeIcon size={28} color={colors.text} />
         </TouchableOpacity>
         <RoughNotationWrapper type="highlight" color="#B0E0E6" show={true}>
           <Text style={styles.pollName}>{poll.name}</Text>
