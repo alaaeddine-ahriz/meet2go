@@ -47,29 +47,38 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
 const responsiveBackground = `
 html {
-  position: fixed;
   width: 100%;
   height: 100%;
-  overflow: hidden;
   -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
 }
 body {
-  position: fixed;
   width: 100%;
   height: 100%;
-  overflow: hidden;
   background-color: #fff;
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
   margin: 0;
   padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
-#root, #root > div {
+#root {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+#root > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 * {
   -webkit-tap-highlight-color: transparent;
