@@ -17,9 +17,15 @@ export default function Root({ children }: { children: React.ReactNode }) {
         />
         {/* iOS PWA configuration to ensure standalone behavior */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Meet2Go" />
         <link rel="apple-touch-icon" href="/assets/images/icon.png" />
+        <link rel="apple-touch-startup-image" href="/assets/images/splash-icon.png" />
+        
+        {/* PWA manifest and theme */}
+        <meta name="theme-color" content="#5B6FED" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="manifest" href="/manifest.json" />
 
         {/* 
           Disable body scrolling on web. This makes ScrollView components work closer to how they do on native. 
@@ -29,6 +35,9 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
         {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
+        
+        {/* Keep navigation within the app (standalone mode) */}
+        <script dangerouslySetInnerHTML={{ __html: navigationScript }} />
         {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
       <body>{children}</body>
@@ -70,3 +79,30 @@ body {
     background-color: #000;
   }
 }`;
+
+const navigationScript = `
+  // Detect if running as standalone PWA
+  if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+    // Prevent external links from opening in Safari
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      while (target && target.tagName !== 'A') {
+        target = target.parentNode;
+      }
+      if (target && target.tagName === 'A') {
+        var href = target.getAttribute('href');
+        // Only handle http/https links
+        if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+          // Check if it's an external link
+          var currentHost = window.location.host;
+          var linkHost = new URL(href, window.location.href).host;
+          if (linkHost !== currentHost) {
+            e.preventDefault();
+            // External links open in Safari
+            window.location.href = href;
+          }
+        }
+      }
+    }, false);
+  }
+`;
