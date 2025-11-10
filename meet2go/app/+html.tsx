@@ -13,7 +13,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         {/* Prevent zooming on mobile Safari (PWA) and keep layout fixed */}
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no"
         />
         {/* iOS PWA configuration to ensure standalone behavior */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -37,10 +37,22 @@ export default function Root({ children }: { children: React.ReactNode }) {
 }
 
 const responsiveBackground = `
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
 body {
   background-color: #fff;
   overscroll-behavior: none;
-  touch-action: pan-x pan-y;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 @media (prefers-color-scheme: dark) {
   body {
