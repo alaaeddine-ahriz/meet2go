@@ -1,21 +1,22 @@
+import { HomeIcon } from '@/src/components/icons';
+import PaperBackground from '@/src/components/PaperBackground';
+import { Button } from '@/src/components/ui/Button';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { colors, spacing, typography } from '@/src/constants/theme';
+import { usePoll } from '@/src/hooks/usePolls';
+import { useQuest } from '@/src/hooks/useQuests';
+import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
+import { getShareHandler } from '@/src/utils/share';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { usePoll } from '@/src/hooks/usePolls';
-import { HomeIcon } from '@/src/components/icons';
-import { useQuest } from '@/src/hooks/useQuests';
-import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography } from '@/src/constants/theme';
-import PaperBackground from '@/src/components/PaperBackground';
-import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
-import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function ResultsScreen() {
   const router = useRouter();
@@ -68,6 +69,7 @@ export default function ResultsScreen() {
   }));
 
   const sortedOptions = sortByScore(optionsWithScores);
+  const shareHandler = getShareHandler();
 
   return (
     <PaperBackground>
@@ -175,6 +177,13 @@ export default function ResultsScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
+          <Button
+            title="SHARE"
+            onPress={async () => 
+              shareHandler(quest.name, quest.invite_code)
+            }
+            variant="secondary"
+          />
           <Button
             title="+ ADD OPTION"
             onPress={() => router.push(`/poll/${id}/add-option`)}

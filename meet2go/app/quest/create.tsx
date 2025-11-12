@@ -1,24 +1,24 @@
-import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  Share,
-  TouchableOpacity,
-  TextInput,
-  Modal,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { useQuests } from '@/src/hooks/useQuests';
-import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography, shadows } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
-import { Ionicons } from '@expo/vector-icons';
+import { Button } from '@/src/components/ui/Button';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { colors, shadows, spacing, typography } from '@/src/constants/theme';
+import { useQuests } from '@/src/hooks/useQuests';
 import { showAlert } from '@/src/utils/alert';
+import { getShareHandler } from '@/src/utils/share';
+import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function CreateQuestScreen() {
   const router = useRouter();
@@ -64,13 +64,15 @@ export default function CreateQuestScreen() {
         endDate: endDate.toISOString(),
       });
 
+      const shareHandler = getShareHandler();
+
       showAlert(
         'Quest Created!',
         'Would you like to share the invite link?',
         [
           {
             text: 'Share',
-            onPress: () => handleShare(quest.name, quest.invite_code),
+            onPress: () => shareHandler(quest.name, quest.invite_code),
           },
           {
             text: 'Later',
@@ -81,18 +83,6 @@ export default function CreateQuestScreen() {
       );
     } catch (error: any) {
       showAlert('Error', error.message || 'Failed to create quest');
-    }
-  };
-
-  const handleShare = async (name: string, inviteCode: string) => {
-    try {
-      await Share.share({
-        message: `Join my quest "${name}" on Meet2Go!\nLink: meet2go://quest/${inviteCode}`,
-      });
-      router.back();
-    } catch (error) {
-      console.error('Error sharing:', error);
-      router.back();
     }
   };
 

@@ -1,24 +1,24 @@
+import { ReturnIcon } from '@/src/components/icons';
+import PaperBackground from '@/src/components/PaperBackground';
+import { Button } from '@/src/components/ui/Button';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { colors, spacing, typography } from '@/src/constants/theme';
+import { useAuth } from '@/src/hooks/useAuth';
+import { usePolls } from '@/src/hooks/usePolls';
+import { useQuest } from '@/src/hooks/useQuests';
+import { Vote } from '@/src/types';
+import { getShareHandler } from '@/src/utils/share';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Share,
   ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Image } from 'react-native';
-import { useQuest } from '@/src/hooks/useQuests';
-import { usePolls } from '@/src/hooks/usePolls';
-import { useAuth } from '@/src/hooks/useAuth';
-import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography } from '@/src/constants/theme';
-import { Vote } from '@/src/types';
-import PaperBackground from '@/src/components/PaperBackground';
-import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
-import { ReturnIcon } from '@/src/components/icons';
 
 export default function QuestDetailScreen() {
   const router = useRouter();
@@ -30,18 +30,6 @@ export default function QuestDetailScreen() {
   // Ensure hooks are declared before any early returns
   // Header is part of the static layout (non-scrolling),
   // so content below does not need dynamic top padding.
-
-  const handleShare = async () => {
-    if (!quest) return;
-
-    try {
-      await Share.share({
-        message: `Join my quest "${quest.name}" on Meet2Go!\nLink: meet2go://quest/${quest.invite_code}`,
-      });
-    } catch (error) {
-      console.error('Error sharing:', error);
-    }
-  };
 
   const handleCreatePoll = () => {
     router.push(`/poll/create?questId=${id}`);
@@ -107,6 +95,7 @@ export default function QuestDetailScreen() {
     day: 'numeric',
     year: 'numeric',
   });
+  const shareHandler = getShareHandler();
 
   return (
     <PaperBackground>
@@ -182,7 +171,7 @@ export default function QuestDetailScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button title="SHARE INVITE" onPress={handleShare} variant="secondary" style={styles.shareButton} />
+        <Button title="SHARE INVITE" onPress={() => shareHandler(quest.name, quest.invite_code)} variant="secondary" style={styles.shareButton} />
         <Button title="+ NEW POLL" onPress={handleCreatePoll} style={styles.createButton} />
       </View>
 
