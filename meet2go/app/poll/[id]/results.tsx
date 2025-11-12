@@ -30,6 +30,20 @@ export default function ResultsScreen() {
     }
   };
 
+  const options = poll?.poll_options || [];
+  const optionsWithScores = options.map((option: any) => ({
+    ...option,
+    score: calculateScore(option.votes || []),
+    voteCounts: getVoteCounts(option.votes || []),
+  }));
+
+  const sortedOptions = sortByScore(optionsWithScores);
+  const shareHandler = getShareHandler();
+
+  const handleOptionPress = (optionId: string) => {
+    router.push(`/poll/${id}/voters?optionId=${optionId}`);
+  };
+
   // Header is part of the static layout; no dynamic top padding needed.
 
   if (isLoading) {
@@ -60,16 +74,6 @@ export default function ResultsScreen() {
       </View>
     );
   }
-
-  const options = poll.poll_options || [];
-  const optionsWithScores = options.map((option: any) => ({
-    ...option,
-    score: calculateScore(option.votes || []),
-    voteCounts: getVoteCounts(option.votes || []),
-  }));
-
-  const sortedOptions = sortByScore(optionsWithScores);
-  const shareHandler = getShareHandler();
 
   return (
     <PaperBackground>
@@ -102,7 +106,11 @@ export default function ResultsScreen() {
               <View style={styles.podiumContainer}>
                 {/* Second place (left) */}
                 {sortedOptions[1] && (
-                  <View style={[styles.podiumSlot, { marginTop: 30 }]}>
+                  <TouchableOpacity
+                    style={[styles.podiumSlot, { marginTop: 30 }]}
+                    onPress={() => handleOptionPress(sortedOptions[1].id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={styles.optionNameTop} numberOfLines={2}>
                       {sortedOptions[1].name}
                     </Text>
@@ -114,12 +122,16 @@ export default function ResultsScreen() {
                       {sortedOptions[1].voteCounts.works}✅{' '}
                       {sortedOptions[1].voteCounts.doesnt_work}❌
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
 
                 {/* First place (middle) */}
                 {sortedOptions[0] && (
-                  <View style={[styles.podiumSlot, { marginHorizontal: 8 }]}>
+                  <TouchableOpacity
+                    style={[styles.podiumSlot, { marginHorizontal: 8 }]}
+                    onPress={() => handleOptionPress(sortedOptions[0].id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={[styles.optionNameTop, styles.winnerText]} numberOfLines={2}>
                       {sortedOptions[0].name}
                     </Text>
@@ -131,12 +143,16 @@ export default function ResultsScreen() {
                       {sortedOptions[0].voteCounts.works}✅{' '}
                       {sortedOptions[0].voteCounts.doesnt_work}❌
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
 
                 {/* Third place (right) */}
                 {sortedOptions[2] && (
-                  <View style={[styles.podiumSlot, { marginTop: 45 }]}>
+                  <TouchableOpacity
+                    style={[styles.podiumSlot, { marginTop: 45 }]}
+                    onPress={() => handleOptionPress(sortedOptions[2].id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={styles.optionNameTop} numberOfLines={2}>
                       {sortedOptions[2].name}
                     </Text>
@@ -148,7 +164,7 @@ export default function ResultsScreen() {
                       {sortedOptions[2].voteCounts.works}✅{' '}
                       {sortedOptions[2].voteCounts.doesnt_work}❌
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
               </View>
             )}
@@ -157,7 +173,12 @@ export default function ResultsScreen() {
             {sortedOptions.length > 3 && (
               <View style={styles.resultsList}>
                 {sortedOptions.slice(3).map((option: any, index: number) => (
-                  <View key={option.id} style={styles.resultCard}>
+                  <TouchableOpacity
+                    key={option.id}
+                    style={styles.resultCard}
+                    onPress={() => handleOptionPress(option.id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={styles.resultBadgeText}>{index + 4}.</Text>
                     <View style={styles.resultTextWrap}>
                       <Text style={styles.resultName} numberOfLines={1}>
@@ -168,7 +189,7 @@ export default function ResultsScreen() {
                         {option.voteCounts.doesnt_work}❌
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
             )}

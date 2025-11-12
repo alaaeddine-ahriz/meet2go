@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
-import { Poll, PollOption, Vote } from '@/src/types';
+import { Vote } from '@/src/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 
 // Get polls for a quest
@@ -121,7 +121,6 @@ export function usePoll(pollId?: string) {
         `)
         .eq('id', pollId)
         .single();
-
       if (error) throw error;
       return data;
     },
@@ -135,5 +134,3 @@ export function usePoll(pollId?: string) {
 
   return { poll, isLoading, error, hasVoted };
 }
-
-

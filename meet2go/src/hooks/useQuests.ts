@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
 import { Quest } from '@/src/types';
 import { generateInviteCode } from '@/src/utils/inviteCodeGenerator';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 
 export function useQuests() {
@@ -170,6 +170,7 @@ export function useQuest(questId?: string) {
           console.error('useQuest: Error fetching member profiles:', profilesError);
         } else {
           membersProfiles = profiles || [];
+          console.log('useQuest: Member profiles:', membersProfiles);
         }
       }
 
