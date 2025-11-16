@@ -1,25 +1,26 @@
 import { useRouter } from 'expo-router';
+import { useCallback } from 'react';
 import { Share } from 'react-native';
 
-export function getShareHandler(): any  {
+/**
+ * Hook that returns a share handler bound to the current router instance.
+ * This keeps the router context read during render instead of during an event.
+ */
+export function useShareHandler() {
   const router = useRouter();
 
-  const handleShare = async (name: string, inviteCode: string) => {
-    try {
-      await Share.share({
-        message: `Join my quest "${name}" on Meet2Go!\nLink: meet2go://quest/${inviteCode}`,
-      });
-      router.back();
-    } catch (error) {
-      console.error('Error sharing:', error);
-      router.back();
-    }
-  };
-
-  return handleShare;
-};
-
-// export const shareBtnStyle = {
-//     marginTop: spacing.sm,
-//     width: '100%',
-//   };
+  return useCallback(
+    async (name: string, inviteCode: string) => {
+      try {
+        await Share.share({
+          message: `Join my quest "${name}" on Meet2Go!\nLink: meet2go://quest/${inviteCode}`,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      } finally {
+        router.back();
+      }
+    },
+    [router]
+  );
+}

@@ -7,7 +7,7 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { usePolls } from '@/src/hooks/usePolls';
 import { useQuest } from '@/src/hooks/useQuests';
 import { Vote } from '@/src/types';
-import { getShareHandler } from '@/src/utils/share';
+import { useShareHandler } from '@/src/utils/share';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -26,6 +26,7 @@ export default function QuestDetailScreen() {
   const { user } = useAuth();
   const { quest, isLoading: questLoading, error: questError } = useQuest(id);
   const { polls, isLoading: pollsLoading } = usePolls(id);
+  const shareHandler = useShareHandler();
 
   // Ensure hooks are declared before any early returns
   // Header is part of the static layout (non-scrolling),
@@ -95,8 +96,6 @@ export default function QuestDetailScreen() {
     day: 'numeric',
     year: 'numeric',
   });
-  const shareHandler = getShareHandler();
-
   return (
     <PaperBackground>
       <View style={styles.container}>

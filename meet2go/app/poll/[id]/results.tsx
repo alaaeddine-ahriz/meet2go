@@ -6,7 +6,7 @@ import { colors, spacing, typography } from '@/src/constants/theme';
 import { usePoll } from '@/src/hooks/usePolls';
 import { useQuest } from '@/src/hooks/useQuests';
 import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
-import { getShareHandler } from '@/src/utils/share';
+import { useShareHandler } from '@/src/utils/share';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -23,6 +23,7 @@ export default function ResultsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { poll, isLoading, hasVoted } = usePoll(id);
   const { quest } = useQuest(poll?.quest_id);
+  const shareHandler = useShareHandler();
 
   const handleGoToQuest = () => {
     if (poll?.quest_id) {
@@ -38,7 +39,6 @@ export default function ResultsScreen() {
   }));
 
   const sortedOptions = sortByScore(optionsWithScores);
-  const shareHandler = getShareHandler();
 
   const handleOptionPress = (optionId: string) => {
     router.push(`/poll/${id}/voters?optionId=${optionId}`);

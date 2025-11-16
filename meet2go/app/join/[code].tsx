@@ -5,21 +5,39 @@ import PaperBackground from '@/src/components/PaperBackground';
 import { useQuests } from '@/src/hooks/useQuests';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import { showAlert } from '@/src/utils/alert';
+import { useAuth } from '@/src/hooks/useAuth';
 
 export default function JoinQuestScreen() {
   const router = useRouter();
   const { code } = useLocalSearchParams<{ code: string }>();
   const { joinQuest, isJoining } = useQuests();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (code) {
-      handleJoinQuest();
+    if (!code || loading) {
+      return;
     }
-  }, [code]);
 
-  const handleJoinQuest = async () => {
+    if (!user) {
+      showAlert(
+        'Sign In Required',
+        'Please sign in to join quests.',
+        [
+          {
+            text: 'Go to Sign In',
+            onPress: () => router.replace('/(auth)/sign-in'),
+          },
+        ]
+      );
+      return;
+    }
+
+    handleJoinQuest(code);
+  }, [code, user, loading, router]);
+
+  const handleJoinQuest = async (inviteCode: string) => {
     try {
-      const quest = await joinQuest(code!);
+      const quest = await joinQuest(inviteCode);
       
       showAlert(
         'Success!',
@@ -68,5 +86,3 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
 });
-
-

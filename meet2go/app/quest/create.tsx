@@ -4,7 +4,7 @@ import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 import { colors, shadows, spacing, typography } from '@/src/constants/theme';
 import { useQuests } from '@/src/hooks/useQuests';
 import { showAlert } from '@/src/utils/alert';
-import { getShareHandler } from '@/src/utils/share';
+import { useShareHandler } from '@/src/utils/share';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
@@ -23,6 +23,7 @@ import {
 export default function CreateQuestScreen() {
   const router = useRouter();
   const { createQuest, isCreating } = useQuests();
+  const shareHandler = useShareHandler();
   const [step, setStep] = useState<'name' | 'date'>('name');
   const [questName, setQuestName] = useState('');
   const [endDate, setEndDate] = useState(new Date());
@@ -63,8 +64,6 @@ export default function CreateQuestScreen() {
         name: questName.trim(),
         endDate: endDate.toISOString(),
       });
-
-      const shareHandler = getShareHandler();
 
       showAlert(
         'Quest Created!',
