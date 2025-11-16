@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { Share } from 'react-native';
@@ -11,9 +12,10 @@ export function useShareHandler() {
 
   return useCallback(
     async (name: string, inviteCode: string) => {
+      const url = Linking.createURL(`join/${inviteCode}`);
       try {
         await Share.share({
-          message: `Join my quest "${name}" on Meet2Go!\nLink: meet2go://quest/${inviteCode}`,
+          message: `Join my quest "${name}" on Meet2Go!\nLink: ${url}`,
         });
       } catch (error) {
         console.error('Error sharing:', error);
