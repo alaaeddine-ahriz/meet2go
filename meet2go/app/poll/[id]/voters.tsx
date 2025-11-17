@@ -1,13 +1,3 @@
-import React from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import PaperBackground from '@/src/components/PaperBackground';
 import { HomeIcon } from '@/src/components/icons';
 import { Button } from '@/src/components/ui/Button';
@@ -17,6 +7,16 @@ import { usePoll } from '@/src/hooks/usePolls';
 import { useQuest } from '@/src/hooks/useQuests';
 import { Vote } from '@/src/types';
 import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React from 'react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const voteTypeOrder: Vote['vote_type'][] = ['amazing', 'works', 'doesnt_work'];
 
@@ -185,11 +185,8 @@ export default function PollVotersScreen() {
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <RoughNotationWrapper type="highlight" color="#FFED8F" show={true}>
-              <Text style={styles.headerTitle}>{activeOption.name}</Text>
+              <Text style={styles.headerTitle}>Voters</Text>
             </RoughNotationWrapper>
-            {!!poll.name && (
-              <Text style={styles.headerSubtitle}>{poll.name}</Text>
-            )}
           </View>
         </View>
 
@@ -197,7 +194,7 @@ export default function PollVotersScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.contentCard}>
+          
             <View style={styles.optionSwitcher}>
               <TouchableOpacity
                 style={styles.arrowButton}
@@ -263,7 +260,7 @@ export default function PollVotersScreen() {
                 ))
               )}
             </View>
-          </View>
+          
         </ScrollView>
 
         <View style={styles.footer}>
