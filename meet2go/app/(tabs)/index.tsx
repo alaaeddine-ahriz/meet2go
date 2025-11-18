@@ -1,28 +1,28 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  RefreshControl,
-  ActivityIndicator,
-  TouchableOpacity,
-  Modal,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuests } from '@/src/hooks/useQuests';
+import { ProfileIcon } from '@/src/components/icons/ProfileIcon';
+import PaperBackground from '@/src/components/PaperBackground';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
-import { colors, spacing, typography } from '@/src/constants/theme';
-import PaperBackground from '@/src/components/PaperBackground';
-import { Quest } from '@/src/types';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
-import { ProfileIcon } from '@/src/components/icons/ProfileIcon';
+import { colors, spacing, typography } from '@/src/constants/theme';
+import { useQuests } from '@/src/hooks/useQuests';
+import { Quest } from '@/src/types';
 import { showAlert } from '@/src/utils/alert';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -65,6 +65,7 @@ export default function HomeScreen() {
           },
           {
             text: 'OK',
+            onPress: () => router.push(`/`),
           },
         ]
       );
