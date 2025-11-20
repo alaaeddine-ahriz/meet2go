@@ -109,14 +109,40 @@ export function useQuests() {
     },
   });
 
+  const leaveQuestMutation = useMutation({
+    mutationFn: async (questId: string) => {
+      if (!user?.id) {
+        throw new Error('You must be signed in to hide quests.');
+      }
+
+      const { error } = await supabase
+        .from('quest_members')
+        .delete()
+        .eq('quest_id', questId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      return questId;
+    },
+    onSuccess: questId => {
+      queryClient.setQueryData<Quest[] | undefined>(
+        ['quests', user?.id],
+        prev => (prev || []).filter(quest => quest.id !== questId)
+      );
+      queryClient.invalidateQueries({ queryKey: ['quests'] });
+    },
+  });
+
   return {
     quests,
     isLoading,
     error,
     createQuest: createQuestMutation.mutateAsync,
     joinQuest: joinQuestMutation.mutateAsync,
+    leaveQuest: leaveQuestMutation.mutateAsync,
     isCreating: createQuestMutation.isPending,
     isJoining: joinQuestMutation.isPending,
+    isLeaving: leaveQuestMutation.isPending,
   };
 }
 

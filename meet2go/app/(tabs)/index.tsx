@@ -4,9 +4,12 @@ import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 import { colors, spacing, typography } from '@/src/constants/theme';
+import { useAuth } from '@/src/hooks/useAuth';
 import { useQuests } from '@/src/hooks/useQuests';
 import { Quest } from '@/src/types';
 import { showAlert } from '@/src/utils/alert';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -26,10 +29,21 @@ import {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { quests, isLoading, error, joinQuest, isJoining } = useQuests();
+  const { user } = useAuth();
+  const { quests, isLoading, error, joinQuest, isJoining, leaveQuest } = useQuests();
   const [refreshing, setRefreshing] = React.useState(false);
   const [joinCode, setJoinCode] = React.useState('');
   const [showJoinModal, setShowJoinModal] = React.useState(false);
+  const [hideMode, setHideMode] = React.useState(false);
+  const [hidingQuestId, setHidingQuestId] = React.useState<string | null>(null);
+  const hiddenStorageKey = user ? `hiddenQuests:${user.id}` : null;
+  const [hiddenQuestIds, setHiddenQuestIds] = React.useState<string[]>([]);
+
+  const hiddenQuestSet = React.useMemo(() => new Set(hiddenQuestIds), [hiddenQuestIds]);
+  const visibleQuests = React.useMemo(
+    () => (quests || []).filter(quest => !hiddenQuestSet.has(quest.id)),
+    [quests, hiddenQuestSet]
+  );
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -44,6 +58,120 @@ export default function HomeScreen() {
     router.push(`/quest/${questId}`);
   };
 
+  React.useEffect(() => {
+    if (!hiddenStorageKey) {
+      setHiddenQuestIds([]);
+      return;
+    }
+    let isMounted = true;
+    AsyncStorage.getItem(hiddenStorageKey)
+      .then(stored => {
+        if (!isMounted) return;
+        if (!stored) {
+          setHiddenQuestIds([]);
+          return;
+        }
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setHiddenQuestIds(parsed);
+          } else {
+            setHiddenQuestIds([]);
+          }
+        } catch {
+          setHiddenQuestIds([]);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setHiddenQuestIds([]);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [hiddenStorageKey]);
+
+  const persistHiddenIds = React.useCallback(
+    async (ids: string[]) => {
+      if (!hiddenStorageKey) return;
+      try {
+        await AsyncStorage.setItem(hiddenStorageKey, JSON.stringify(ids));
+      } catch {
+        // Ignore storage errors; hiding still functions for current session
+      }
+    },
+    [hiddenStorageKey]
+  );
+
+  const addHiddenQuest = React.useCallback(
+    (questId: string) => {
+      setHiddenQuestIds(prev => {
+        if (prev.includes(questId)) return prev;
+        const next = [...prev, questId];
+        persistHiddenIds(next);
+        return next;
+      });
+    },
+    [persistHiddenIds]
+  );
+
+  const removeHiddenQuest = React.useCallback(
+    (questId: string) => {
+      setHiddenQuestIds(prev => {
+        if (!prev.includes(questId)) return prev;
+        const next = prev.filter(id => id !== questId);
+        persistHiddenIds(next);
+        return next;
+      });
+    },
+    [persistHiddenIds]
+  );
+
+  const toggleHideMode = () => {
+    if (!visibleQuests || visibleQuests.length === 0) {
+      showAlert('Nothing to hide', 'You have no quests to hide yet.');
+      return;
+    }
+    setHideMode(prev => !prev);
+  };
+
+  const handleQuestItemPress = (quest: Quest) => {
+    if (hideMode) {
+      confirmHideQuest(quest);
+      return;
+    }
+    handleQuestPress(quest.id);
+  };
+
+  const handleHideQuest = async (quest: Quest) => {
+    try {
+      addHiddenQuest(quest.id);
+      setHidingQuestId(quest.id);
+      await leaveQuest(quest.id);
+      showAlert('Hidden', `"${quest.name}" was removed from list. Rejoin any time with its code.`);
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Failed to hide quest.');
+    } finally {
+      setHidingQuestId(null);
+    }
+  };
+
+  const confirmHideQuest = (quest: Quest) => {
+    showAlert(
+      'Remove quest?',
+      `This will remove "${quest.name}" from your list. Other members will not be affected. You can rejoin later using its quest code.`,
+      [
+        { text: 'Cancel', style: 'cancel', onPress: () => {} },
+        { text: 'Remove', style: 'destructive', onPress: () => handleHideQuest(quest) },
+      ]
+    );
+  };
+
+  React.useEffect(() => {
+    if (hideMode && visibleQuests.length === 0) {
+      setHideMode(false);
+    }
+  }, [visibleQuests, hideMode]);
+
   const handleJoinQuest = async () => {
     if (!joinCode.trim()) {
       showAlert('Error', 'Please enter a quest code');
@@ -54,6 +182,7 @@ export default function HomeScreen() {
       const quest = await joinQuest(joinCode.trim().toUpperCase());
       setJoinCode('');
       setShowJoinModal(false);
+      removeHiddenQuest(quest.id);
       
       showAlert(
         'Success!',
@@ -82,20 +211,29 @@ export default function HomeScreen() {
   };
 
   const renderQuestItem = ({ item }: { item: Quest }) => {
-    // const endDate = new Date(item.end_date);
-    // const formattedDate = endDate.toLocaleDateString('en-US', {
-    //   month: 'short',
-    //   day: 'numeric',
-    //   year: 'numeric',
-    // });
+    const isPendingHide = hidingQuestId === item.id;
 
     return (
       <TouchableOpacity 
-        style={styles.questItem} 
-        onPress={() => handleQuestPress(item.id)}
-        activeOpacity={0.7}
+        style={[
+          styles.questItem,
+          hideMode && styles.questItemHideMode,
+          isPendingHide && styles.questItemDisabled,
+        ]} 
+        onPress={() => handleQuestItemPress(item)}
+        activeOpacity={hideMode ? 0.9 : 0.7}
+        disabled={isPendingHide && hideMode}
       >
         <Text style={styles.questName}>{item.name}</Text>
+        {hideMode && (
+          <View style={styles.hideIndicator}>
+            {isPendingHide ? (
+              <ActivityIndicator size="small" color={colors.error} />
+            ) : (
+              <Ionicons name="trash-outline" size={20} color={colors.error} />
+            )}
+          </View>
+        )}
         {/* <Text style={styles.questDate}>{formattedDate}</Text> */}
       </TouchableOpacity>
     );
@@ -127,6 +265,17 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContainer}>
+          <TouchableOpacity
+            onPress={toggleHideMode}
+            style={[styles.editQuest, hideMode && styles.editQuestActive]}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={hideMode ? 'close' : 'trash-outline'}
+              size={28}
+              color={hideMode ? colors.error : colors.text}
+            />
+          </TouchableOpacity>
           <View style={styles.titleContainer}>
             <RoughNotationWrapper type="highlight" color="#FFD700" show={true}>
               <Text style={styles.headerTitle}>UPCOMING</Text>
@@ -141,12 +290,17 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {quests && quests.length > 0 ? (
+        {hideMode && visibleQuests && visibleQuests.length > 0 && (
+          <Text style={styles.hideModeText}>Tap a quest to remove it</Text>
+        )}
+
+        {visibleQuests && visibleQuests.length > 0 ? (
           <FlatList
-            data={quests}
+            data={visibleQuests}
             renderItem={renderQuestItem}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
+            extraData={{ hideMode, hidingQuestId, hiddenQuestIds }}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
@@ -273,6 +427,18 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
     opacity: 0.5,
   },
+  editQuest: {
+    position: 'absolute',
+    left: spacing.md,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    padding: spacing.xs,
+    opacity: 0.5,
+  },
+  editQuestActive: {
+    opacity: 1,
+  },
   joinButton: {
     marginBottom: spacing.sm,
     width: '100%',
@@ -310,6 +476,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     marginBottom: spacing.sm,
     width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+  },
+  questItemHideMode: {
+    justifyContent: 'space-between',
+  },
+  questItemDisabled: {
+    opacity: 0.5,
   },
   questName: {
     ...typography.headline,
@@ -317,11 +492,18 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.xs,
     textAlign: 'center',
+    flex: 1,
   },
   questDate: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'center',
+  },
+  hideIndicator: {
+    marginLeft: spacing.sm,
+    width: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyContainer: {
     flex: 1,
@@ -372,5 +554,11 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  hideModeText: {
+    ...typography.body,
+    color: colors.error,
+    textAlign: 'center',
+    marginBottom: spacing.md,
   },
 });
