@@ -127,13 +127,6 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity
-            onPress={handleProfilePress}
-            style={styles.editQuest}
-            activeOpacity={0.7}
-          >
-            <ProfileIcon size={32} color={colors.text} />
-          </TouchableOpacity>
           <View style={styles.titleContainer}>
             <RoughNotationWrapper type="highlight" color="#FFD700" show={true}>
               <Text style={styles.headerTitle}>UPCOMING</Text>
@@ -274,15 +267,6 @@ const styles = StyleSheet.create({
   profileLink: {
     position: 'absolute',
     right: spacing.md,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    padding: spacing.xs,
-    opacity: 0.5,
-  },
-  editQuest: {
-    position: 'absolute',
-    left: spacing.md,
     top: 0,
     bottom: 0,
     justifyContent: 'center',
