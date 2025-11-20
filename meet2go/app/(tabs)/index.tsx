@@ -82,12 +82,12 @@ export default function HomeScreen() {
   };
 
   const renderQuestItem = ({ item }: { item: Quest }) => {
-    const endDate = new Date(item.end_date);
-    const formattedDate = endDate.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    // const endDate = new Date(item.end_date);
+    // const formattedDate = endDate.toLocaleDateString('en-US', {
+    //   month: 'short',
+    //   day: 'numeric',
+    //   year: 'numeric',
+    // });
 
     return (
       <TouchableOpacity 
@@ -96,7 +96,7 @@ export default function HomeScreen() {
         activeOpacity={0.7}
       >
         <Text style={styles.questName}>{item.name}</Text>
-        <Text style={styles.questDate}>{formattedDate}</Text>
+        {/* <Text style={styles.questDate}>{formattedDate}</Text> */}
       </TouchableOpacity>
     );
   };

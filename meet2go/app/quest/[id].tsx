@@ -90,12 +90,12 @@ export default function QuestDetailScreen() {
     );
   }
 
-  const endDate = new Date(quest.end_date);
-  const formattedDate = endDate.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  // const endDate = new Date(quest.end_date);
+  // const formattedDate = endDate.toLocaleDateString('en-US', {
+  //   month: 'short',
+  //   day: 'numeric',
+  //   year: 'numeric',
+  // });
   return (
     <PaperBackground>
       <View style={styles.container}>
@@ -113,7 +113,7 @@ export default function QuestDetailScreen() {
           <RoughNotationWrapper type="highlight" color="#FFB6C1" show={true}>
             <Text style={styles.headerTitle}>{quest.name}</Text>
           </RoughNotationWrapper>
-          <Text style={styles.headerDate}>{formattedDate}</Text>
+          {/* <Text style={styles.headerDate}>{formattedDate}</Text> */}
           {!!quest?.members_profiles?.length && (
             <View style={styles.avatarRow}>
               {quest.members_profiles.slice(0, 6).map((p: any, i: number) => (
