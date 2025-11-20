@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Image, Platform, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -14,6 +14,8 @@ import { SWIPE_THRESHOLD, CARD_ROTATION } from '@/src/constants/gestures';
 import { VoteType } from '@/src/types';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const CARD_MAX_WIDTH = 520;
+const CARD_MAX_HEIGHT = 520;
 
 const CARD_OFFSET = 10; // Vertical offset between stacked cards
 const CARD_SCALE_FACTOR = 0.05; // Scale reduction per card in stack
@@ -28,6 +30,7 @@ interface SwipeCardProps {
 }
 
 export function SwipeCard({ optionName, imageUrl, onSwipe, index, stackPosition, isActive }: SwipeCardProps) {
+  const { width, height } = useWindowDimensions();
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const isDragging = useSharedValue(false);
@@ -150,7 +153,16 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index, stackPosition,
 
   return (
     <GestureDetector gesture={panGesture}>
-      <Animated.View style={[styles.card, animatedCardStyle]}>
+      <Animated.View
+        style={[
+          styles.card,
+          {
+            width: Math.min(width - spacing.xl * 2, CARD_MAX_WIDTH),
+            height: Math.min(height * 0.6, CARD_MAX_HEIGHT),
+          },
+          animatedCardStyle,
+        ]}
+      >
         {imageUrl ? (
           <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
         ) : (
@@ -176,8 +188,6 @@ export function SwipeCard({ optionName, imageUrl, onSwipe, index, stackPosition,
 const styles = StyleSheet.create({
   card: {
     position: 'absolute',
-    width: SCREEN_WIDTH - spacing.xl * 2,
-    height: SCREEN_HEIGHT * 0.6,
     backgroundColor: colors.surface,
     borderRadius: 24,
     overflow: 'hidden',
