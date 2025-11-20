@@ -1,23 +1,23 @@
+import PaperBackground from '@/src/components/PaperBackground';
+import { Button } from '@/src/components/ui/Button';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { colors, spacing, typography } from '@/src/constants/theme';
+import { usePolls } from '@/src/hooks/usePolls';
+import { useVotes } from '@/src/hooks/useVotes';
+import { showAlert } from '@/src/utils/alert';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TouchableOpacity,
+  StyleSheet,
+  Text,
   TextInput,
-  Keyboard,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { usePolls } from '@/src/hooks/usePolls';
-import { useVotes } from '@/src/hooks/useVotes';
-import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography } from '@/src/constants/theme';
-import PaperBackground from '@/src/components/PaperBackground';
-import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
-import { showAlert } from '@/src/utils/alert';
 
 export default function AddOptionScreen() {
   const router = useRouter();
@@ -25,35 +25,46 @@ export default function AddOptionScreen() {
   const { addPollOption, isAddingOption } = usePolls();
   const { castVote } = useVotes();
 
-  const [options, setOptions] = useState<string[]>([]);
-  const [currentOption, setCurrentOption] = useState('');
-  const optionInputRef = useRef<TextInput>(null);
-  const lastTapRef = useRef<number>(0);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [options, setOptions] = useState<string[]>(['']);
+  const optionInputRefs = useRef<Array<TextInput | null>>([]);
+  const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(0);
+
+  optionInputRefs.current = optionInputRefs.current.slice(0, options.length);
 
   useEffect(() => {
-    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, []);
+    if (pendingFocusIndex === null) return;
+    requestAnimationFrame(() => {
+      optionInputRefs.current[pendingFocusIndex]?.focus();
+    });
+    setPendingFocusIndex(null);
+  }, [pendingFocusIndex, options.length]);
 
   const addLocalOption = () => {
-    if (!currentOption.trim()) return;
-    setOptions(prev => [...prev, currentOption.trim()]);
-    setCurrentOption('');
-    requestAnimationFrame(() => optionInputRef.current?.focus());
+    setOptions(prev => {
+      const next = [...prev, ''];
+      setPendingFocusIndex(next.length - 1);
+      return next;
+    });
+  };
+
+  const updateLocalOption = (index: number, value: string) => {
+    setOptions(prev => prev.map((item, i) => (i === index ? value : item)));
   };
 
   const removeLocalOption = (index: number) => {
-    setOptions(prev => prev.filter((_, i) => i !== index));
+    setOptions(prev => {
+      if (prev.length === 1) {
+        setPendingFocusIndex(0);
+        return [''];
+      }
+      const next = prev.filter((_, i) => i !== index);
+      setPendingFocusIndex(Math.min(index, next.length - 1));
+      return next;
+    });
   };
 
   const submitAll = async () => {
-    const items = [...options];
-    if (currentOption.trim()) items.push(currentOption.trim());
+    const items = options.map(item => item.trim()).filter(Boolean);
     if (items.length === 0) {
       showAlert('Error', 'Please add at least one option');
       return;
@@ -91,48 +102,40 @@ export default function AddOptionScreen() {
           </View>
 
           <View style={styles.form}>
-            {options.length > 0 && (
-              <View style={styles.optionsList}>
-                {options.map((name, index) => (
-                  <TouchableOpacity
-                    key={`${name}-${index}`}
-                    activeOpacity={0.7}
-                    onPress={() => {
-                      const now = Date.now();
-                      if (now - lastTapRef.current < 300) removeLocalOption(index);
-                      lastTapRef.current = now;
+            <View style={styles.optionsList}>
+              {options.map((value, index) => (
+                <View key={`option-${index}`} style={styles.optionRow}>
+                  <TextInput
+                    ref={ref => {
+                      optionInputRefs.current[index] = ref;
                     }}
-                  >
-                    <View style={styles.optionItem}>
-                      <Text style={styles.optionTextCenter}>{name}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-            <View
-              style={[
-                styles.inputRow,
-                (options.length > 0 && !keyboardVisible) && styles.collapsedRow,
-              ]}
-              pointerEvents={(options.length > 0 && !keyboardVisible) ? 'none' : 'auto'}
-            >
-              <TextInput
-                ref={optionInputRef}
-                style={[
-                  styles.optionInput,
-                  (options.length > 0 && !keyboardVisible) && styles.collapsedInput,
-                ]}
-                value={currentOption}
-                onChangeText={setCurrentOption}
-                placeholder={(options.length === 0 || keyboardVisible) ? 'Option name...' : ''}
-                placeholderTextColor={colors.textSecondary}
-                returnKeyType="done"
-                blurOnSubmit={false}
-                onSubmitEditing={addLocalOption}
-                autoFocus
-              />
+                    style={styles.optionInput}
+                    value={value}
+                    onChangeText={text => updateLocalOption(index, text)}
+                    placeholder={`Option ${index + 1}...`}
+                    placeholderTextColor={colors.textSecondary}
+                    returnKeyType={index === options.length - 1 ? 'done' : 'next'}
+                    blurOnSubmit={false}
+                    onSubmitEditing={() => {
+                      if (index === options.length - 1) {
+                        addLocalOption();
+                      } else {
+                        setPendingFocusIndex(index + 1);
+                      }
+                    }}
+                    autoFocus={options.length === 1 && index === 0}
+                  />
+                  {options.length > 1 && (
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => removeLocalOption(index)}
+                      accessibilityLabel={`Remove option ${index + 1}`}
+                    >
+                      <Ionicons name="trash-outline" size={24} color={colors.textSecondary} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
             </View>
 
             <Button
@@ -187,33 +190,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     alignItems: 'center',
   },
-  optionItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.xs,
-    width: '100%',
-  },
-  optionTextCenter: {
-    ...typography.headline,
-    fontSize: 30,
-    color: colors.text,
-    textAlign: 'center',
-  },
-  inputRow: {
+  optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '100%',
     marginBottom: spacing.sm,
   },
-  collapsedRow: {
-    height: 0,
-    marginBottom: 0,
-    overflow: 'hidden',
-  },
   optionInput: {
-    width: '100%',
+    flex: 1,
     backgroundColor: 'transparent',
     borderWidth: 0,
     borderColor: 'transparent',
@@ -227,9 +211,10 @@ const styles = StyleSheet.create({
     lineHeight: 38,
     fontFamily: 'Komikask',
   },
-  collapsedInput: {
-    height: 0,
-    paddingVertical: 0,
+  removeButton: {
+    marginLeft: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.xs,
   },
   addButton: {
     backgroundColor: 'transparent',
