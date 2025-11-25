@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { SwipeCard } from '@/src/components/voting/SwipeCard';
 import { Button } from '@/src/components/ui/Button';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
-import { VoteType, PollOption } from '@/src/types';
+import { VoteType } from '@/src/types';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function VoteScreen() {
@@ -29,47 +29,78 @@ export default function VoteScreen() {
 
   const options = poll?.poll_options || [];
 
+  // 🔥 Stores JPG URLs received from API
+  const [loadedImages, setLoadedImages] = useState<Map<string, string>>(new Map());
+
+  // 🔥 1. Fetch JPG images from your backend
+  useEffect(() => {
+    if (!options || options.length === 0) return;
+  
+    async function fetchImages() {
+      for (const option of options) {
+        if (!loadedImages.has(option.id)) {
+          console.log("FETCHING IMAGE FOR:", option.name);
+  
+          try {
+            const response = await fetch("https://image.a1s.kz/image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ word: option.name }),
+            });
+  
+            const blob = await response.blob();
+  
+            // Convert Blob → usable local URL
+            const localUrl = URL.createObjectURL(blob);
+  
+            console.log("IMAGE READY:", localUrl);
+  
+            setLoadedImages(prev => {
+              const next = new Map(prev);
+              next.set(option.id, localUrl);
+              return next;
+            });
+  
+          } catch (err) {
+            console.error("Image fetch error:", err);
+          }
+        }
+      }
+    }
+  
+    fetchImages();
+  }, [options]);
+  
+
+  // ------------- Swipe logic -------------
   const handleSwipe = useCallback((voteType: VoteType) => {
     if (currentIndex >= options.length) return;
 
     const currentOption = options[currentIndex];
 
-    // Optimistic UI update - move to next card immediately
     setVotedOptions(prev => new Map(prev).set(currentOption.id, voteType));
     setPendingVotes(prev => [...prev, { optionId: currentOption.id, voteType }]);
+
     const nextIndex = currentIndex + 1;
     setCurrentIndex(nextIndex);
 
-    // If last card swiped, submit all pending votes as a batch
     if (nextIndex >= options.length) {
       const votesToSubmit = [...pendingVotes, { optionId: currentOption.id, voteType }];
       castVotesBatch(votesToSubmit).catch((error) => {
         console.error('Error submitting votes:', error);
-        // Optionally: surface a non-blocking toast/snackbar
       });
     }
   }, [currentIndex, options, pendingVotes, castVotesBatch]);
 
   const handlePrevious = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-    }
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
   }, [currentIndex]);
 
-  const handleSeeResults = () => {
-    router.replace(`/poll/${id}/results`);
-  };
+  const handleSeeResults = () => router.replace(`/poll/${id}/results`);
+  const handleAddOption = () => router.push(`/poll/${id}/add-option`);
+  const handleGoToQuest = () => poll?.quest_id && router.push(`/quest/${poll.quest_id}`);
 
-  const handleAddOption = () => {
-    router.push(`/poll/${id}/add-option`);
-  };
-
-  const handleGoToQuest = () => {
-    if (poll?.quest_id) {
-      router.push(`/quest/${poll.quest_id}`);
-    }
-  };
-
+  // ------------- Loading states -------------
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
@@ -87,7 +118,7 @@ export default function VoteScreen() {
     );
   }
 
-  // All cards voted
+  // ------------- All voted -------------
   if (currentIndex >= options.length) {
     return (
       <PaperBackground>
@@ -101,10 +132,9 @@ export default function VoteScreen() {
           </TouchableOpacity>
           <Text style={styles.completionTitle}>YOU'RE SET!</Text>
           <Text style={styles.completionEmoji}>🚀</Text>
-          {isBatchVoting && (
-            <ActivityIndicator size="small" color={colors.primary} />
-          )}
-          
+
+          {isBatchVoting && <ActivityIndicator size="small" color={colors.primary} />}
+
           <TouchableOpacity onPress={handleSeeResults} style={styles.resultsLink}>
             <Text style={styles.resultsLinkText}>SEE RESULTS</Text>
           </TouchableOpacity>
@@ -120,70 +150,75 @@ export default function VoteScreen() {
     );
   }
 
-  // Render cards in stack: current + next 2 cards
+  // ------------- Visible cards -------------
   const CARDS_IN_STACK = 3;
   const visibleCards = options.slice(currentIndex, currentIndex + CARDS_IN_STACK);
 
   return (
     <PaperBackground>
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.homeButton}
-          onPress={handleGoToQuest}
-          activeOpacity={0.7}
-        >
-          <HomeIcon size={28} color={colors.text} />
-        </TouchableOpacity>
-        <RoughNotationWrapper type="highlight" color="#B0E0E6" show={true}>
-          <Text style={styles.pollName}>{poll.name}</Text>
-        </RoughNotationWrapper>
-        <Text style={styles.progress}>
-          {currentIndex + 1}/{options.length}
-        </Text>
-      </View>
-
-      <View style={styles.cardContainer}>
-        {visibleCards.map((option, stackIndex) => {
-          const globalIndex = currentIndex + stackIndex;
-          return (
-        <SwipeCard
-              key={option.id}
-              optionName={option.name}
-              imageUrl={option.image_url || undefined}
-          onSwipe={handleSwipe}
-              index={globalIndex}
-              stackPosition={stackIndex}
-              isActive={stackIndex === 0}
-        />
-          );
-        }).reverse()}
-      </View>
-
-      <View style={styles.footer}>
-        {currentIndex > 0 && (
+      <View style={styles.container}>
+        
+        {/* Header */}
+        <View style={styles.header}>
           <TouchableOpacity
-            style={styles.previousButton}
-            onPress={handlePrevious}
+            style={styles.homeButton}
+            onPress={handleGoToQuest}
+            activeOpacity={0.7}
           >
-            <Text style={styles.previousText}>← PREVIOUS</Text>
+            <HomeIcon size={28} color={colors.text} />
           </TouchableOpacity>
-        )}
 
-        <View style={styles.hints}>
-          <Text style={styles.hintText}>← Doesn't Work | Works → | Amazing ↑</Text>
+          <RoughNotationWrapper type="highlight" color="#B0E0E6" show={true}>
+            <Text style={styles.pollName}>{poll.name}</Text>
+          </RoughNotationWrapper>
+
+          <Text style={styles.progress}>
+            {currentIndex + 1}/{options.length}
+          </Text>
         </View>
+
+        {/* Cards */}
+        <View style={styles.cardContainer}>
+          {visibleCards.map((option, stackIndex) => {
+            const globalIndex = currentIndex + stackIndex;
+
+            return (
+              <SwipeCard
+                key={option.id}
+                optionName={option.name}
+                imageUrl={loadedImages.get(option.id)}   // 🔥 HERE WE USE JPG
+                onSwipe={handleSwipe}
+                index={globalIndex}
+                stackPosition={stackIndex}
+                isActive={stackIndex === 0}
+              />
+            );
+          }).reverse()}
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          {currentIndex > 0 && (
+            <TouchableOpacity style={styles.previousButton} onPress={handlePrevious}>
+              <Text style={styles.previousText}>← PREVIOUS</Text>
+            </TouchableOpacity>
+          )}
+
+          <View style={styles.hints}>
+            <Text style={styles.hintText}>
+              ← Doesn't Work | Works → | Amazing ↑
+            </Text>
+          </View>
+        </View>
+
       </View>
-    </View>
     </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
+  container: { flex: 1, backgroundColor: 'transparent' },
+
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -240,9 +275,7 @@ const styles = StyleSheet.create({
     ...typography.button,
     color: colors.primary,
   },
-  hints: {
-    alignItems: 'center',
-  },
+  hints: { alignItems: 'center' },
   hintText: {
     ...typography.caption,
     color: colors.textSecondary,
@@ -258,13 +291,8 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.md,
   },
-  completionEmoji: {
-    fontSize: 80,
-    marginBottom: spacing.xxl,
-  },
-  resultsLink: {
-    marginBottom: spacing.lg,
-  },
+  completionEmoji: { fontSize: 80, marginBottom: spacing.xxl },
+  resultsLink: { marginBottom: spacing.lg },
   resultsLinkText: {
     ...typography.button,
     color: colors.primary,
@@ -275,5 +303,3 @@ const styles = StyleSheet.create({
     minWidth: 250,
   },
 });
-
-
