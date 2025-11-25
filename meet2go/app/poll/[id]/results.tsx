@@ -1,26 +1,48 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { HomeIcon } from '@/src/components/icons';
+import PaperBackground from '@/src/components/PaperBackground';
+import { Button } from '@/src/components/ui/Button';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { colors, spacing, typography } from '@/src/constants/theme';
 import { usePoll } from '@/src/hooks/usePolls';
 import { useQuest } from '@/src/hooks/useQuests';
-import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography } from '@/src/constants/theme';
-import PaperBackground from '@/src/components/PaperBackground';
 import { calculateScore, getVoteCounts, sortByScore } from '@/src/utils/scoring';
-import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { useShareHandler } from '@/src/utils/share';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React from 'react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function ResultsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { poll, isLoading, hasVoted } = usePoll(id);
   const { quest } = useQuest(poll?.quest_id);
+  const shareHandler = useShareHandler();
+
+  const handleGoToQuest = () => {
+    if (poll?.quest_id) {
+      router.push(`/quest/${poll.quest_id}`);
+    }
+  };
+
+  const options = poll?.poll_options || [];
+  const optionsWithScores = options.map((option: any) => ({
+    ...option,
+    score: calculateScore(option.votes || []),
+    voteCounts: getVoteCounts(option.votes || []),
+  }));
+
+  const sortedOptions = sortByScore(optionsWithScores);
+
+  const handleOptionPress = (optionId: string) => {
+    router.push(`/poll/${id}/voters?optionId=${optionId}`);
+  };
 
   // Header is part of the static layout; no dynamic top padding needed.
 
@@ -53,15 +75,6 @@ export default function ResultsScreen() {
     );
   }
 
-  const options = poll.poll_options || [];
-  const optionsWithScores = options.map((option: any) => ({
-    ...option,
-    score: calculateScore(option.votes || []),
-    voteCounts: getVoteCounts(option.votes || []),
-  }));
-
-  const sortedOptions = sortByScore(optionsWithScores);
-
   return (
     <PaperBackground>
       <View style={styles.container}>
@@ -69,6 +82,13 @@ export default function ResultsScreen() {
         <View
           style={styles.headerContainer}
         >
+          <TouchableOpacity
+            style={styles.homeButton}
+            onPress={handleGoToQuest}
+            activeOpacity={0.7}
+          >
+            <HomeIcon size={28} color={colors.text} />
+          </TouchableOpacity>
           <View style={styles.headerCenter}>
             <RoughNotationWrapper type="highlight" color="#98FB98" show={true}>
               <Text style={styles.headerTitle}>{poll.name}</Text>
@@ -86,7 +106,11 @@ export default function ResultsScreen() {
               <View style={styles.podiumContainer}>
                 {/* Second place (left) */}
                 {sortedOptions[1] && (
-                  <View style={[styles.podiumSlot, { marginTop: 30 }]}>
+                  <TouchableOpacity
+                    style={[styles.podiumSlot, { marginTop: 30 }]}
+                    onPress={() => handleOptionPress(sortedOptions[1].id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={styles.optionNameTop} numberOfLines={2}>
                       {sortedOptions[1].name}
                     </Text>
@@ -98,12 +122,16 @@ export default function ResultsScreen() {
                       {sortedOptions[1].voteCounts.works}✅{' '}
                       {sortedOptions[1].voteCounts.doesnt_work}❌
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
 
                 {/* First place (middle) */}
                 {sortedOptions[0] && (
-                  <View style={[styles.podiumSlot, { marginHorizontal: 8 }]}>
+                  <TouchableOpacity
+                    style={[styles.podiumSlot, { marginHorizontal: 8 }]}
+                    onPress={() => handleOptionPress(sortedOptions[0].id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={[styles.optionNameTop, styles.winnerText]} numberOfLines={2}>
                       {sortedOptions[0].name}
                     </Text>
@@ -115,12 +143,16 @@ export default function ResultsScreen() {
                       {sortedOptions[0].voteCounts.works}✅{' '}
                       {sortedOptions[0].voteCounts.doesnt_work}❌
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
 
                 {/* Third place (right) */}
                 {sortedOptions[2] && (
-                  <View style={[styles.podiumSlot, { marginTop: 45 }]}>
+                  <TouchableOpacity
+                    style={[styles.podiumSlot, { marginTop: 45 }]}
+                    onPress={() => handleOptionPress(sortedOptions[2].id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={styles.optionNameTop} numberOfLines={2}>
                       {sortedOptions[2].name}
                     </Text>
@@ -132,7 +164,7 @@ export default function ResultsScreen() {
                       {sortedOptions[2].voteCounts.works}✅{' '}
                       {sortedOptions[2].voteCounts.doesnt_work}❌
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
               </View>
             )}
@@ -141,7 +173,12 @@ export default function ResultsScreen() {
             {sortedOptions.length > 3 && (
               <View style={styles.resultsList}>
                 {sortedOptions.slice(3).map((option: any, index: number) => (
-                  <View key={option.id} style={styles.resultCard}>
+                  <TouchableOpacity
+                    key={option.id}
+                    style={styles.resultCard}
+                    onPress={() => handleOptionPress(option.id)}
+                    activeOpacity={0.8}
+                  >
                     <Text style={styles.resultBadgeText}>{index + 4}.</Text>
                     <View style={styles.resultTextWrap}>
                       <Text style={styles.resultName} numberOfLines={1}>
@@ -152,7 +189,7 @@ export default function ResultsScreen() {
                         {option.voteCounts.doesnt_work}❌
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
             )}
@@ -161,6 +198,13 @@ export default function ResultsScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
+          <Button
+            title="SHARE"
+            onPress={async () => 
+              shareHandler(quest.name, quest.invite_code)
+            }
+            variant="secondary"
+          />
           <Button
             title="+ ADD OPTION"
             onPress={() => router.push(`/poll/${id}/add-option`)}
@@ -192,6 +236,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xxl + 40,
+    position: 'relative',
+  },
+  homeButton: {
+    position: 'absolute',
+    left: spacing.md,
+    top: spacing.xxl + 40,
+    zIndex: 10,
+    padding: spacing.xs,
   },
   headerTitle: {
     ...typography.headline,

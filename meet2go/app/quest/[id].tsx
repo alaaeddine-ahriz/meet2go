@@ -1,23 +1,24 @@
+import { ReturnIcon } from '@/src/components/icons';
+import PaperBackground from '@/src/components/PaperBackground';
+import { Button } from '@/src/components/ui/Button';
+import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { colors, spacing, typography } from '@/src/constants/theme';
+import { useAuth } from '@/src/hooks/useAuth';
+import { usePolls } from '@/src/hooks/usePolls';
+import { useQuest } from '@/src/hooks/useQuests';
+import { Vote } from '@/src/types';
+import { useShareHandler } from '@/src/utils/share';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Share,
   ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Image } from 'react-native';
-import { useQuest } from '@/src/hooks/useQuests';
-import { usePolls } from '@/src/hooks/usePolls';
-import { useAuth } from '@/src/hooks/useAuth';
-import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography } from '@/src/constants/theme';
-import { Vote } from '@/src/types';
-import PaperBackground from '@/src/components/PaperBackground';
-import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
 
 export default function QuestDetailScreen() {
   const router = useRouter();
@@ -25,22 +26,11 @@ export default function QuestDetailScreen() {
   const { user } = useAuth();
   const { quest, isLoading: questLoading, error: questError } = useQuest(id);
   const { polls, isLoading: pollsLoading } = usePolls(id);
+  const shareHandler = useShareHandler();
 
   // Ensure hooks are declared before any early returns
   // Header is part of the static layout (non-scrolling),
   // so content below does not need dynamic top padding.
-
-  const handleShare = async () => {
-    if (!quest) return;
-
-    try {
-      await Share.share({
-        message: `Join my quest "${quest.name}" on Meet2Go!\nLink: meet2go://quest/${quest.invite_code}`,
-      });
-    } catch (error) {
-      console.error('Error sharing:', error);
-    }
-  };
 
   const handleCreatePoll = () => {
     router.push(`/poll/create?questId=${id}`);
@@ -100,24 +90,30 @@ export default function QuestDetailScreen() {
     );
   }
 
-  const endDate = new Date(quest.end_date);
-  const formattedDate = endDate.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
+  // const endDate = new Date(quest.end_date);
+  // const formattedDate = endDate.toLocaleDateString('en-US', {
+  //   month: 'short',
+  //   day: 'numeric',
+  //   year: 'numeric',
+  // });
   return (
     <PaperBackground>
       <View style={styles.container}>
       <View
         style={styles.headerContainer}
       >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.replace('/(tabs)')}
+          activeOpacity={0.7}
+        >
+          <ReturnIcon size={28} color={colors.text} />
+        </TouchableOpacity>
         <View style={styles.headerCenter}>
           <RoughNotationWrapper type="highlight" color="#FFB6C1" show={true}>
             <Text style={styles.headerTitle}>{quest.name}</Text>
           </RoughNotationWrapper>
-          <Text style={styles.headerDate}>{formattedDate}</Text>
+          {/* <Text style={styles.headerDate}>{formattedDate}</Text> */}
           {!!quest?.members_profiles?.length && (
             <View style={styles.avatarRow}>
               {quest.members_profiles.slice(0, 6).map((p: any, i: number) => (
@@ -174,7 +170,7 @@ export default function QuestDetailScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button title="SHARE INVITE" onPress={handleShare} variant="secondary" style={styles.shareButton} />
+        <Button title="SHARE INVITE" onPress={() => shareHandler(quest.name, quest.invite_code)} variant="secondary" style={styles.shareButton} />
         <Button title="+ NEW POLL" onPress={handleCreatePoll} style={styles.createButton} />
       </View>
 
@@ -204,10 +200,18 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     width: '100%',
-    marginBottom: spacing.xl,
+    marginBottom: 0,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xxl + 40,
     backgroundColor: 'transparent',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: spacing.md,
+    top: spacing.xxl + 40,
+    zIndex: 10,
+    padding: spacing.xs,
   },
   headerCenter: {
     width: '100%',
@@ -304,7 +308,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: spacing.xl,
+    paddingVertical: 0,
   },
   emptyText: {
     ...typography.headline,

@@ -6,12 +6,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { Link } from 'expo-router';
-import * as Linking from 'expo-linking';
-import * as AuthSession from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
+// import * as Linking from 'expo-linking';
+// import * as AuthSession from 'expo-auth-session';
+// import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/hooks/useAuth';
 import { Button } from '@/src/components/ui/Button';
@@ -19,17 +18,18 @@ import { Input } from '@/src/components/ui/Input';
 import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { showAlert } from '@/src/utils/alert';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
-  const [oauthLoading, setOauthLoading] = useState(false);
+  // const [oauthLoading, setOauthLoading] = useState(false);
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showAlert('Error', 'Please fill in all fields');
       return;
     }
 
@@ -37,47 +37,47 @@ export default function SignInScreen() {
     try {
       await signIn(email, password);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to sign in');
+      showAlert('Error', error.message || 'Failed to sign in');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setOauthLoading(true);
-      // Ensure auth session can complete on iOS
-      WebBrowser.maybeCompleteAuthSession();
+  // const handleGoogleSignIn = async () => {
+  //   try {
+  //     setOauthLoading(true);
+  //     // Ensure auth session can complete on iOS
+  //     WebBrowser.maybeCompleteAuthSession();
 
-      // For Expo Go, proxy works more reliably; custom scheme also supported
-      const redirectTo = AuthSession.makeRedirectUri({
-        scheme: 'meet2go',
-        useProxy: true,
-        preferLocalhost: false,
-      });
+  //     // For Expo Go, proxy works more reliably; custom scheme also supported
+  //     const redirectTo = AuthSession.makeRedirectUri({
+  //       scheme: 'meet2go',
+  //       useProxy: true,
+  //       preferLocalhost: false,
+  //     });
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          skipBrowserRedirect: true,
-        },
-      });
+  //     const { data, error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'google',
+  //       options: {
+  //         redirectTo,
+  //         skipBrowserRedirect: true,
+  //       },
+  //     });
 
-      if (error) throw error;
+  //     if (error) throw error;
 
-      if (data?.url) {
-        const res = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-        if (res.type === 'success' && res.url) {
-          // Deep link handled by supabase-js; no-op here
-        }
-      }
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to start Google sign-in');
-    } finally {
-      setOauthLoading(false);
-    }
-  };
+  //     if (data?.url) {
+  //       const res = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  //       if (res.type === 'success' && res.url) {
+  //         // Deep link handled by supabase-js; no-op here
+  //       }
+  //     }
+  //   } catch (error: any) {
+  //     showAlert('Error', error.message || 'Failed to start Google sign-in');
+  //   } finally {
+  //     setOauthLoading(false);
+  //   }
+  // };
 
   return (
     <PaperBackground>
@@ -121,13 +121,13 @@ export default function SignInScreen() {
               style={styles.button}
             />
 
-          <Button
+          {/* <Button
             title="CONTINUE WITH GOOGLE"
             onPress={handleGoogleSignIn}
             loading={oauthLoading}
             variant="secondary"
               style={styles.button}
-            />
+            /> */}
 
             <Link href="/(auth)/sign-up" asChild>
               <Text style={styles.link}>

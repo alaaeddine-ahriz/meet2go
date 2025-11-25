@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
 import { Quest } from '@/src/types';
 import { generateInviteCode } from '@/src/utils/inviteCodeGenerator';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 
 export function useQuests() {
@@ -41,6 +41,9 @@ export function useQuests() {
   // Create quest mutation
   const createQuestMutation = useMutation({
     mutationFn: async ({ name, endDate }: { name: string; endDate: string }) => {
+      if (!user?.id) {
+        throw new Error('You must be signed in to create quests.');
+      }
       const inviteCode = generateInviteCode();
 
       const { data, error } = await supabase
@@ -49,7 +52,7 @@ export function useQuests() {
           name,
           end_date: endDate,
           invite_code: inviteCode,
-          created_by: user!.id,
+          created_by: user.id,
         })
         .select()
         .single();
@@ -65,6 +68,9 @@ export function useQuests() {
   // Join quest by invite code
   const joinQuestMutation = useMutation({
     mutationFn: async (inviteCode: string) => {
+      if (!user?.id) {
+        throw new Error('You must be signed in to join quests.');
+      }
       // Find quest by invite code
       const { data: quest, error: questError } = await supabase
         .from('quests')
@@ -80,7 +86,7 @@ export function useQuests() {
         .from('quest_members')
         .select('*')
         .eq('quest_id', quest.id)
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .single();
 
       if (existingMember) {
@@ -92,7 +98,7 @@ export function useQuests() {
         .from('quest_members')
         .insert({
           quest_id: quest.id,
-          user_id: user!.id,
+          user_id: user.id,
         });
 
       if (memberError) throw memberError;
@@ -103,14 +109,40 @@ export function useQuests() {
     },
   });
 
+  const leaveQuestMutation = useMutation({
+    mutationFn: async (questId: string) => {
+      if (!user?.id) {
+        throw new Error('You must be signed in to hide quests.');
+      }
+
+      const { error } = await supabase
+        .from('quest_members')
+        .delete()
+        .eq('quest_id', questId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      return questId;
+    },
+    onSuccess: questId => {
+      queryClient.setQueryData<Quest[] | undefined>(
+        ['quests', user?.id],
+        prev => (prev || []).filter(quest => quest.id !== questId)
+      );
+      queryClient.invalidateQueries({ queryKey: ['quests'] });
+    },
+  });
+
   return {
     quests,
     isLoading,
     error,
     createQuest: createQuestMutation.mutateAsync,
     joinQuest: joinQuestMutation.mutateAsync,
+    leaveQuest: leaveQuestMutation.mutateAsync,
     isCreating: createQuestMutation.isPending,
     isJoining: joinQuestMutation.isPending,
+    isLeaving: leaveQuestMutation.isPending,
   };
 }
 
@@ -170,6 +202,7 @@ export function useQuest(questId?: string) {
           console.error('useQuest: Error fetching member profiles:', profilesError);
         } else {
           membersProfiles = profiles || [];
+          console.log('useQuest: Member profiles:', membersProfiles);
         }
       }
 
