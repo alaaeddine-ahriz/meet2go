@@ -112,7 +112,7 @@ We utilized the following technologies to build our high-fidelity prototype:
 *   **Difficulties:** Handling complex data relationships for the "Who Voted Which" screen and ensuring deep linking worked correctly for joining quests.
 *   **Useful Skill:** Deep linking implementation and complex state management for detailed user statistics.
 
-### Kim DOLMAGAMBETOV
-*   **Contribution:** [No specific commits found in git history. Please add contribution manually.]
+### Karen DOLMAGAMBETOV
+*   **Contribution:** Implemented the image fetching feature and backend for AI image generation.
 *   **Difficulties:** 
-*   **Useful Skill:**
+*   **Useful Skill:** 
