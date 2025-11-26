@@ -95,9 +95,14 @@ We utilized the following technologies to build our high-fidelity prototype:
 *   **Supabase Realtime:** For live updates when friends vote.
 *   **Supabase Storage:** For hosting option images.
 
+**Image Generation Backend:**
+*   **SQLite:** Used as a lightweight database to check whether a requested image is already stored locally or a new one should be generated using DALL-E.
+*   **FastAPI:** Handles incoming requests, file management, and the interaction with the OpenAI API for image generation.
+*   **Uvicorn + Nginx + Certbot:** This stack ensures high-performance serving, secure HTTPS access, and stable routing of requests.
+
 **Coding suport tools**
 * Cursor
-* WebStorm + JetBrains Ai
+* WebStorm + JetBrains AI
 * Codex
 
 ## Individual Reflections
@@ -118,6 +123,6 @@ We utilized the following technologies to build our high-fidelity prototype:
 *   **Useful Skill:** Deep linking implementation and complex state management for detailed user statistics.
 
 ### Karen DOLMAGAMBETOV
-*   **Contribution:** Implemented the image fetching feature and backend for AI image generation.
-*   **Difficulties:** 
-*   **Useful Skill:** 
+*   **Contribution:** Developed the DALL-E–based image generation module for the app. Implemented the FastAPI backend, deployed using Uvicorn behind an Nginx reverse proxy (live at [image.a1s.kz/image](https://image.a1s.kz/image)).
+*   **Difficulties:** The most challenging part was handling blob-based rendering of the returned .jpg images. The backend served the image correctly, but assembling it on the frontend required additional work with Blob objects and dynamic image creation.
+*   **Useful Skill:** Experience with deployment and CI/CD to achieve a stable, production-ready server setup with minimal latency and efficient request handling. 
