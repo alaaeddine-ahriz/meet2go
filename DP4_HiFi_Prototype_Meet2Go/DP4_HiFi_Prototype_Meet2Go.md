@@ -107,7 +107,7 @@ We utilized the following technologies to build our high-fidelity prototype:
 *   **Useful Skill:** Advanced React Native styling, PWA configuration with Expo, and implementing Google Authentication in a mobile/web hybrid app.
 
 ### Malte KINDERMANN
-*   **Contribution:** Focused on platform unification (Web vs. Native), ensuring consistent navigation controls (home/back buttons) across devices. Fixed UI bugs like overflowing borders and implemented logic for expiry dates.
+*   **Contribution:** Improved consistency and usability across the platform by standardising behaviour between the web and native versions. Several missing navigation elements were added, such as home, back and previous buttons, to ensure a smoother user experience. Also fixed bugs and layout issues, introduced a custom alert/pop up system for the web version and simplified the user workflow by removing unnecessary pop-ups and inconsistent redirects. 
 *   **Difficulties:** Debugging platform-specific UI inconsistencies and ensuring the navigation flow felt natural on both web and mobile.
 *   **Useful Skill:** Cross-platform debugging and UI standardization in React Native.
 
