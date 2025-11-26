@@ -98,6 +98,7 @@ We utilized the following technologies to build our high-fidelity prototype:
 **Coding suport tools**
 * Cursor
 * WebStorm + JetBrains Ai
+* Codex
 
 ## Individual Reflections
 
@@ -112,7 +113,7 @@ We utilized the following technologies to build our high-fidelity prototype:
 *   **Useful Skill:** Cross-platform debugging and UI standardization in React Native.
 
 ### Kim SEUNGJAE
-*   **Contribution:** Implemented key features like the "Who Voted Which" screen, share button functionality (showing actual hosted URL), and the option to remove quests. Fixed critical bugs related to joining via link/code and improved voter statistics clarity.
+*   **Contribution:** Implemented key features like the "Who Voted Which" screen, share button functionality (showing actual hosted URL), and the option to remove quests. Fixed critical bugs related to joining via link/code and improved voter statistics clarity. Found multiple bugs and documented them to remove later, and fixed some of them.
 *   **Difficulties:** Handling complex data relationships for the "Who Voted Which" screen and ensuring deep linking worked correctly for joining quests.
 *   **Useful Skill:** Deep linking implementation and complex state management for detailed user statistics.
 
