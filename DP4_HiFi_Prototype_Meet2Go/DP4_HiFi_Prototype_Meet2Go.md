@@ -95,6 +95,10 @@ We utilized the following technologies to build our high-fidelity prototype:
 *   **Supabase Realtime:** For live updates when friends vote.
 *   **Supabase Storage:** For hosting option images.
 
+**Coding suport tools**
+* Cursor
+* WebStorm + JetBrains Ai
+
 ## Individual Reflections
 
 ### Alaaeddine AHRIZ
