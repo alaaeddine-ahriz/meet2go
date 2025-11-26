@@ -103,9 +103,9 @@ We utilized the following technologies to build our high-fidelity prototype:
 ## Individual Reflections
 
 ### Alaaeddine AHRIZ
-*   **Contribution:** Initiated the project and led the design and development of the high-fidelity prototype. Worked on the core features of the app, including the swipe-based voting system, real-time results display, authentication, and PWA support. Implemented UI improvements, icons, and responsive design fixes for web and mobile PWA.
-*   **Difficulties:** Handling cross-platform compatibility (Web vs. Native), specifically with PWA viewport issues and Safari zoom behavior. Ensuring smooth swipe animations and card positioning.
-*   **Useful Skill:** Advanced React Native styling, PWA configuration with Expo, and implementing Google Authentication in a mobile/web hybrid app.
+*   **Contribution:** I was responsible for the core development of the high-fidelity prototype. While my previous experience with React JS for web made the logic easier to handle, this was my first time working with React Native. My role included building the swipe-based voting system, real-time results, and user authentication. I also led the PWA implementation, ensuring the app worked seamlessly on the web.
+*   **Difficulties:** The most challenging aspect was handling cross-platform compatibility. I encountered tricky issues with PWA viewports and Safari's auto-zoom behavior. I also faced some slight hurdles when configuring and running the Android simulator. Additionally, ensuring the swipe animations were smooth across all devices required careful tuning.
+*   **Useful Skill:** The most valuable skill I learned was configuring and optimizing Progressive Web Apps (PWAs) with Expo. I gained a deep understanding of how to bridge the gap between native and web experiences, specifically in handling viewport behaviors and touch gestures effectively.
 
 ### Malte KINDERMANN
 *   **Contribution:** Improved consistency and usability across the platform by standardising behaviour between the web and native versions. Several missing navigation elements were added, such as home, back and previous buttons, to ensure a smoother user experience. Also fixed bugs and layout issues, introduced a custom alert/pop up system for the web version and simplified the user workflow by removing unnecessary pop-ups and inconsistent redirects. 
