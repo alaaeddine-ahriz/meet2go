@@ -56,10 +56,12 @@ export default function QuestDetailScreen() {
     ) || 0;
     const totalOptions = poll.poll_options?.length || 0;
 
+    console.log('Poll:', poll.name, 'User Votes:', userVotes.length, 'Total Votes:', totalVotes, 'Total Options:', totalOptions);
+
     if (!hasUserVoted) {
       return { status: 'no_vote', text: 'NO VOTE' };
-    } else if (totalVotes < totalOptions) {
-      return { status: 'in_progress', text: `${totalVotes}/${totalOptions} ANSWERS` };
+    } else if (userVotes.length < totalOptions) {
+      return { status: 'in_progress', text: `${userVotes.length}/${totalOptions} ANSWERS` };
     } else {
       return { status: 'complete', text: 'RESULTS AVAILABLE!' };
     }
@@ -145,7 +147,7 @@ export default function QuestDetailScreen() {
             <View style={styles.pollsList}>
               {polls.map((poll) => {
                 const { status, text } = getPollStatus(poll);
-                const hasVoted = status !== 'no_vote';
+                const hasVoted = status === 'complete';
                 return (
                   <TouchableOpacity
                     key={poll.id}
