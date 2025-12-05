@@ -1,33 +1,49 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { usePoll } from '@/src/hooks/usePolls';
 import { HomeIcon } from '@/src/components/icons';
-import { useVotes } from '@/src/hooks/useVotes';
-import { SwipeCard } from '@/src/components/voting/SwipeCard';
-import { Button } from '@/src/components/ui/Button';
-import { colors, spacing, typography } from '@/src/constants/theme';
 import PaperBackground from '@/src/components/PaperBackground';
-import { VoteType } from '@/src/types';
+import { Button } from '@/src/components/ui/Button';
 import { RoughNotationWrapper } from '@/src/components/ui/RoughNotationWrapper';
+import { SwipeCard } from '@/src/components/voting/SwipeCard';
+import { colors, spacing, typography } from '@/src/constants/theme';
+import { usePoll } from '@/src/hooks/usePolls';
+import { useVotes } from '@/src/hooks/useVotes';
+import { useAuth } from '@/src/hooks/useAuth';
+import { VoteType } from '@/src/types';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function VoteScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { poll, isLoading } = usePoll(id);
   const { castVotesBatch, isBatchVoting } = useVotes();
+  const { user } = useAuth();
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [votedOptions, setVotedOptions] = useState<Map<string, VoteType>>(new Map());
   const [pendingVotes, setPendingVotes] = useState<Array<{ optionId: string; voteType: VoteType }>>([]);
+  const [hasAlignedIndex, setHasAlignedIndex] = useState(false);
 
   const options = poll?.poll_options || [];
+
+  // Jump directly to the first option the user hasn't voted on yet.
+  useEffect(() => {
+    if (hasAlignedIndex) return;
+    if (!options.length || !user?.id) return;
+
+    const firstUnvotedIndex = options.findIndex(
+      option => !(option.votes || []).some(vote => vote.user_id === user.id)
+    );
+
+    setCurrentIndex(firstUnvotedIndex === -1 ? options.length : firstUnvotedIndex);
+    setHasAlignedIndex(true);
+  }, [options, user?.id, hasAlignedIndex]);
 
   // 🔥 Stores JPG URLs received from API
   const [loadedImages, setLoadedImages] = useState<Map<string, string>>(new Map());
