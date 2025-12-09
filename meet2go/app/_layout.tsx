@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { queryClient } from '@/src/lib/queryClient';
 import { useAuth } from '@/src/hooks/useAuth';
 import { StyleSheet } from 'react-native';
@@ -29,10 +30,20 @@ function RootLayoutNav() {
       // Redirect to sign-in if not authenticated
       router.replace('/(auth)/sign-in');
     } else if (isAuthenticated && inAuthGroup) {
-      // Redirect to home if authenticated
-      router.replace('/(tabs)');
+      // Check if there's a pending quest code to join
+      AsyncStorage.getItem('pendingQuestCode').then((pendingCode) => {
+        if (pendingCode) {
+          // Clear the pending code and redirect to join page
+          AsyncStorage.removeItem('pendingQuestCode').then(() => {
+            router.replace(`/join/${pendingCode}`);
+          });
+        } else {
+          // No pending quest, redirect to home
+          router.replace('/(tabs)');
+        }
+      });
     }
-  }, [isAuthenticated, loading, segments]);
+  }, [isAuthenticated, loading, segments, router]);
 
   return (
     <Stack

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PaperBackground from '@/src/components/PaperBackground';
 import { useQuests } from '@/src/hooks/useQuests';
 import { colors, spacing, typography } from '@/src/constants/theme';
@@ -19,16 +20,19 @@ export default function JoinQuestScreen() {
     }
 
     if (!user) {
-      showAlert(
-        'Sign In Required',
-        'Please sign in to join quests.',
-        [
-          {
-            text: 'Go to Sign In',
-            onPress: () => router.replace('/(auth)/sign-in'),
-          },
-        ]
-      );
+      // Store the quest code so we can redirect back after authentication
+      AsyncStorage.setItem('pendingQuestCode', code).then(() => {
+        showAlert(
+          'Sign In Required',
+          'Please sign in to join quests.',
+          [
+            {
+              text: 'Go to Sign In',
+              onPress: () => router.replace('/(auth)/sign-in'),
+            },
+          ]
+        );
+      });
       return;
     }
 
@@ -38,6 +42,9 @@ export default function JoinQuestScreen() {
   const handleJoinQuest = async (inviteCode: string) => {
     try {
       const quest = await joinQuest(inviteCode);
+      
+      // Clear any pending quest code after successful join
+      await AsyncStorage.removeItem('pendingQuestCode');
       
       showAlert(
         'Success!',
@@ -50,6 +57,9 @@ export default function JoinQuestScreen() {
         ]
       );
     } catch (error: any) {
+      // Clear pending code on error too
+      await AsyncStorage.removeItem('pendingQuestCode');
+      
       showAlert(
         'Error',
         error.message || 'Failed to join quest',

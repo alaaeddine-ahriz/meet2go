@@ -38,7 +38,7 @@ export default function SignUpScreen() {
     setLoading(true);
     try {
       await signUp(email, password, displayName || undefined);
-      showAlert('Success', 'Account created! Please sign in.');
+      showAlert('Success', 'Account created!');
       router.replace('/(auth)/sign-in');
     } catch (error: any) {
       showAlert('Error', error.message || 'Failed to sign up');
