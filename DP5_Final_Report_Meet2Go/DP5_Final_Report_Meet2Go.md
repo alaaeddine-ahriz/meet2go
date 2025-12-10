@@ -52,6 +52,24 @@ The application uses React Native Reanimated to ensure smooth animations, which 
 **User Feedback Analysis:**
 (Summarize feedback here)
 
+### A feedback
+#### process
+
+1. Create an account
+2. vote on the given poll
+3. create 3 polls with multiple options
+4. vote on the new poll
+5. check results
+
+#### Response
+
+Background: 23 y.o. male, KAIST SoC & BTM co-major.
+
+1. The initial voting page can be a bit unintuitive, with the fineprinted manual not very visible due to the finger position
+2. Creating options for polls is broken on iPhone w/ iOS 26 [this was rememdied by providing an alternative phone]
+3. The poll title is too small when creating options, which makes them unclear which poll I'm creating
+4. The 'amazing' effect shown when voting amazing is not very visible (compared to works/doesn't work)
+
 ![Deployment Chart](images/placeholder_chart.png)
 *Figure 4: Chart showing user engagement or voting patterns.*
 
