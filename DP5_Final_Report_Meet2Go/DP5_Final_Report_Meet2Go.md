@@ -2,6 +2,29 @@
 
 **Team:** Meet2Go
 
+---
+
+## 📋 TODO: Missing Items
+
+### Representative Screenshots
+- [ ] Add callouts/annotations to screenshots
+
+### Quality Arguments
+- [ ] Add supporting user quotes/comments
+
+### Deployment Summary
+- [ ] Fill in Total Users count
+- [ ] Fill in Total Quests Created count
+- [ ] Fill in Total Votes Cast count
+- [ ] Add visual aid (chart/graph showing engagement)
+- [ ] Synthesize user feedback analysis
+- [ ] Add more user feedback examples (ensure NO team-generated data)
+
+### Individual Reflections
+- [ ] Each member contributions
+
+---
+
 ## Project Summary
 
 **Problem:** Friend groups often fail to make collective decisions efficiently because group chat discussions are chaotic, fragmented, and fail to capture the nuance of individual preferences.
@@ -14,13 +37,13 @@
 
 Include a few most important screenshots that showcase the uniqueness of your application. Add callouts, annotations, or captions.
 
-![Swipe Interface](images/placeholder_swipe.png)
+![Swipe Interface](images/swipe.png)
 *Figure 1: The core swipe interface allowing users to express preference intensity (Amazing, Works, Doesn't Work).*
 
-![Results and Consensus](images/placeholder_results.png)
+![Results and Consensus](images/results.png)
 *Figure 2: The consensus view showing the winning option and weighted happiness score.*
 
-![Quest Creation](images/placeholder_quest.png)
+![Quest Creation](images/quest.png)
 *Figure 3: Creating a new quest and adding options with AI-generated visuals.*
 
 ## Quality Arguments
@@ -53,7 +76,7 @@ The application uses React Native Reanimated to ensure smooth animations, which 
 (Summarize feedback here)
 
 ### A feedback
-#### process
+#### Process
 
 1. Create an account
 2. vote on the given poll
@@ -69,9 +92,6 @@ Background: 23 y.o. male, KAIST SoC & BTM co-major.
 2. Creating options for polls is broken on iPhone w/ iOS 26 [this was rememdied by providing an alternative phone]
 3. The poll title is too small when creating options, which makes them unclear which poll I'm creating
 4. The 'amazing' effect shown when voting amazing is not very visible (compared to works/doesn't work)
-
-![Deployment Chart](images/placeholder_chart.png)
-*Figure 4: Chart showing user engagement or voting patterns.*
 
 ## Discussion
 
@@ -92,6 +112,6 @@ We considered the privacy implications of "preference intensity." While users ca
 ## Prototype & Repository
 
 *   **Live Prototype:** https://meet2go.vercel.app/
-*   **Repository:** https://github.com/alaaeddineahriz/meet2go
+*   **Repository:** https://github.com/alaaeddine-ahriz/meet2go
 
 ## Individual Reflections
