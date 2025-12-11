@@ -7,7 +7,7 @@
 ## 📋 TODO: Missing Items
 
 ### Representative Screenshots
-- [ ] Add callouts/annotations to screenshots
+- [x] Add callouts/annotations to screenshots --> added detailled captions instead
 
 ### Quality Arguments
 - [ ] Add supporting user quotes/comments
@@ -35,16 +35,14 @@
 
 ## Representative Screenshots
 
-Include a few most important screenshots that showcase the uniqueness of your application. Add callouts, annotations, or captions.
-
 ![Swipe Interface](images/swipe.png)
-*Figure 1: The core swipe interface allowing users to express preference intensity (Amazing, Works, Doesn't Work).*
+*Figure 1: **The Swipe Voting Interface** — Users vote on options using intuitive gestures: swipe **left** for "Doesn't Work" (red), **right** for "Works" (green), or **up** for "Amazing!" (gold). Each card displays an AI-generated image and the option title. This Tinder-inspired UX makes voting feel like a game rather than a chore.*
 
 ![Results and Consensus](images/results.png)
-*Figure 2: The consensus view showing the winning option and weighted happiness score.*
+*Figure 2: **The Consensus Results View** — After all members vote, the winning option is displayed with a recap of the weighted preferences. Users can see who voted and how, ensuring transparency. The algorithm on the backend removes social friction by letting the algorithm decide rather than individuals advocating for their preference.*
 
 ![Quest Creation](images/quest.png)
-*Figure 3: Creating a new quest and adding options with AI-generated visuals.*
+*Figure 3: **Quest Creation Flow** — Users create a "Quest" (decision) and add options. Each option automatically generates an AI image (using DALL-E) ensuring all suggestions have equal visual appeal regardless of text description quality or image choice. This levels the playing field and makes even simple text options feel engaging and "real."*
 
 ## Quality Arguments
 
