@@ -110,6 +110,13 @@ We considered the privacy implications of "preference intensity." While users ca
 ## Prototype & Repository
 
 *   **Live Prototype:** https://meet2go.vercel.app/
-*   **Repository:** https://github.com/alaaeddine-ahriz/meet2go
+*   **Repository:** https://github.com/alaaeddine-ahriz/meet2go – The link works, we promise ;)
 
 ## Individual Reflections
+
+### Alaaeddine AHRIZ
+For this project, I was responsible for the full-stack development of the prototype, from initial Figma design to final deployment. My concrete contributions included implementing the swipe-based voting system with Tinder-style card interactions, developing the results visualization and underlying consensus algorithm, and building the complete user authentication flow. I also handled the Progressive Web App configuration with Expo to ensure compatibility across iOS, Android, and Web. Although I had prior experience with React JS, this was my first time working with React Native, and I managed all backend integration with Supabase, including authentication, database schemas, and real-time subscriptions.
+
+Our teamwork was effective because roles were clearly defined according to each member’s strengths, and communication remained consistent through WhatsApp and frequent post-class sync-ups. Each member had ownership over specific features, which created a balanced workflow across design, research, and development. Using Git for both code and written reports significantly improved collaboration and version control. A key challenge arose when user expectations differed from what we initially envisioned, often preferring simpler features. We addressed this by maintaining continuous communication in our group chat, sharing feedback as soon as it appeared, and documenting our decisions directly in the codebase. This experience reinforced that over-communication is preferable to under-communication and that user feedback must guide development priorities.
+
+Through this project, I gained technical skills in component and system architecture design, Expo PWA configuration, and cross-platform development. I also learned to balance technical feasibility with user experience to deliver value efficiently. Most importantly, I gained end-to-end experience building and deploying a user-facing product and working within a social-interaction-driven platform.
