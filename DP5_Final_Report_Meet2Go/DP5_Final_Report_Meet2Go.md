@@ -80,10 +80,6 @@ The application uses React Native Reanimated to ensure smooth animations, which 
 *   **Total Quests Created:** [15]
 *   **Total Votes Cast:** [150]
 
-**User Feedback Analysis:**
-
-Across all users, Meet2Go was perceived as **intuitive, visually appealing, and easy to learn**. The core concepts of *quests*, *polls*, and *options* were generally understood after brief interaction. Users consistently praised the **minimalist design**, **swipe-based voting**, and **automatic image generation**, which made the experience feel playful rather than administrative.
-
 ### A feedback
 #### Process
 
@@ -92,6 +88,8 @@ Across all users, Meet2Go was perceived as **intuitive, visually appealing, and 
 3. Create 3 polls with multiple options
 4. Vote on the new poll
 5. Check results
+
+The deployment proceeded smoothly. The application was hosted on Vercel, and participants used their personal devices to complete the assigned tasks in the user study. Users either created their own quests or joined their friends’ quests using invite codes. In total, 30 participants took part in the study. Additionally, a subset of 10 users participated in one-on-one interviews, providing deeper insights into their usage experience.
 
 #### Response
 
@@ -108,13 +106,6 @@ Sign-up and quest creation required no explanation. Automatic image generation m
 Voting was seen as a novel and expressive way to communicate preference intensity. Results were clear and satisfying to interpret, reinforcing transparent group consensus.
 ![Results UI and medal contrast](images/results_medals.png)
 
-**User 4 — Master’s Student in CS (30 y.o.)**  
-The nesting of quests, polls, and options was easy to understand. Swipe interactions felt familiar and aligned with modern social-app UX patterns.
-
-**User 5 — School Student (16 y.o.)**  
-Voting felt natural and game-like. Image generation made decisions more fun, and the overall idea was described as relevant and exciting.
-
-
 ---
 
 ### Summary
@@ -125,7 +116,6 @@ Across all participants, Meet2Go was perceived as **intuitive, engaging, and vis
 - Clear, transparent consensus results
 
 User comments focused primarily on **refinement opportunities**, indicating a strong and well-aligned interaction design rather than fundamental usability problems.
-
 
 ## Discussion
 
