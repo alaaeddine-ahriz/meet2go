@@ -91,6 +91,7 @@ The application uses React Native Reanimated to ensure smooth animations, which 
 
 The deployment proceeded smoothly. The application was hosted on Vercel, and participants used their personal devices to complete the assigned tasks in the user study. Users either created their own quests or joined their friends’ quests using invite codes. In total, 30 participants took part in the study. Additionally, a subset of 10 users participated in one-on-one interviews, providing deeper insights into their usage experience.
 
+![In person user studies](images/user_study.jpeg)
 #### Response
 
 ### Qualitative User Feedback
@@ -100,13 +101,14 @@ Quest creation and joining by code felt effortless. Voting and results were imme
 
 **User 2 — Office Worker (25 y.o.)**  
 Sign-up and quest creation required no explanation. Automatic image generation made options more engaging and approachable, supporting participation from non-technical users.
-![AI Generated visualisations](images/AI_image.png)
 
 **User 3 — Software Engineer (23 y.o.)**  
 Voting was seen as a novel and expressive way to communicate preference intensity. Results were clear and satisfying to interpret, reinforcing transparent group consensus.
-![Results UI and medal contrast](images/results_medals.png)
+
 
 ---
+
+![Response from one of the users!](images/response.png)
 
 ### Summary
 
