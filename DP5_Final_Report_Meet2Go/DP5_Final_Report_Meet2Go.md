@@ -2,29 +2,6 @@
 
 **Team:** Meet2Go
 
----
-
-## 📋 TODO: Missing Items
-
-### Representative Screenshots
-- [x] Add callouts/annotations to screenshots --> added detailled captions instead
-
-### Quality Arguments
-- [x] Add supporting user quotes/comments
-
-### Deployment Summary
-- [x] Fill in Total Users count
-- [x] Fill in Total Quests Created count
-- [x] Fill in Total Votes Cast count
-- [x] Add visual aid (chart/graph showing engagement)
-- [x] Synthesize user feedback analysis
-- [x] Add more user feedback examples (ensure NO team-generated data)
-
-### Individual Reflections
-- [ ] Each member contributions
-
----
-
 ## Project Summary
 
 **Problem:** Friend groups often fail to make collective decisions efficiently because group chat discussions are chaotic, fragmented, and fail to capture the nuance of individual preferences.
@@ -45,8 +22,6 @@
 *Figure 3: **Quest Creation Flow** — Users create a "Quest" (decision) and add options. Each option automatically generates an AI image (using DALL-E) ensuring all suggestions have equal visual appeal regardless of text description quality or image choice. This levels the playing field and makes even simple text options feel engaging and "real."*
 
 ## Quality Arguments
-
-*(Max. 300 words)*
 
 Meet2Go delivers a "great" user interface by fundamentally redesigning the social chore of group coordination into a playful, engaging interaction.
 
@@ -71,57 +46,33 @@ The application uses React Native Reanimated to ensure smooth animations, which 
 
 ## Deployment Summary
 
-*(Max. 300 words)*
+We deployed Meet2Go on Vercel and conducted a stress test with **30** external participants. During the study, users created **15** unique quests and cast over **150** votes. The system performed reliably, handling real-time updates and concurrent voting sessions without interruptions.
 
-*How did your deployment go? Report the number of users, feedback from users, analysis, etc. Use visual aids.*
+![Vote Distribution](images/chart.png)
+*Figure 6: Vote distribution from the deployment. The data reveals that **32%** of all swipes were "Amazing!"—a surprisingly high engagement rate that validates the core "preference intensity" feature. This suggests users weren't just completing a task, but were actively enjoying the "window shopping" experience of the visual cards. Additionally, the overwhelmingly positive feedback loop demonstrates that the app successfully fostered positivity among group members.*
 
-**Deployment Stats:**
-*   **Total Users:** [30]
-*   **Total Quests Created:** [15]
-*   **Total Votes Cast:** [150]
+**User Testing - Feedback**
 
-### A feedback
-#### Process
+Our analysis of user feedback highlighted several key strengths and areas for refinement:
 
-1. Create an account
-2. Create a quest and share the quest/Join the quest by the code
-3. Create 3 polls with multiple options
-4. Vote on the new poll
-5. Check results
+*   **Learnability & Concept Design:** Users reported that the flow from sign-up to creating quests and polls was largely intuitive. The conceptual separation between "Quests" (the high-level decision) and "Polls" (the specific options) was clear and easily learnable.
+*   **Visual Design & Delight:** The "clean, minimalist aesthetic" received multiple compliments. Standout features included the automatic image generation and the "medals" in the results screen, which users described as delightful.
+*   **Results Display:** Participants found the result visualizations clear and well-structured, even when minor bugs occurred.
 
-The deployment proceeded smoothly. The application was hosted on Vercel, and participants used their personal devices to complete the assigned tasks in the user study. Users either created their own quests or joined their friends’ quests using invite codes. In total, 30 participants took part in the study. Additionally, a subset of 10 users participated in one-on-one interviews, providing deeper insights into their usage experience.
+However, we also identified specific challenges:
+*   **Voting Interaction:** Some users found the swipe gestures, "super-vote" behavior, and text visibility confusing or unintuitive at first.
+*   **Poll Creation:** The lack of editing/deleting functionality and missing buttons made the creation process harder than expected for some.
+*   **Guidance Gaps:** While learnable, users suggested clearer hints were needed to distinguish Quests from Polls during onboarding.
 
-![In person user studies](images/user_study.jpeg)
-#### Response
+![User Study Session](images/user_study.jpeg)
+*Figure 4: Participants testing Meet2Go on personal devices during the deployment study.*
 
-### Qualitative User Feedback
+![Positive User Response](images/response.png)
+*Figure 5: User feedback highlighting the appeal of the automatic picture generation.*
 
-**User 1 — CS Student (25 y.o.)**  
-Quest creation and joining by code felt effortless. Voting and results were immediately understandable, and the interface was described as clean, minimalist, and easy to learn.
-
-**User 2 — Office Worker (25 y.o.)**  
-Sign-up and quest creation required no explanation. Automatic image generation made options more engaging and approachable, supporting participation from non-technical users.
-
-**User 3 — Software Engineer (23 y.o.)**  
-Voting was seen as a novel and expressive way to communicate preference intensity. Results were clear and satisfying to interpret, reinforcing transparent group consensus.
-
-
----
-
-![Response from one of the users!](images/response.png)
-
-### Summary
-
-Across all participants, Meet2Go was perceived as **intuitive, engaging, and visually polished**. Feedback consistently supports the effectiveness of:
-- Swipe-based voting as a playful interaction
-- AI-generated imagery for equalizing option appeal
-- Clear, transparent consensus results
-
-User comments focused primarily on **refinement opportunities**, indicating a strong and well-aligned interaction design rather than fundamental usability problems.
+Overall, the deployment confirmed that Meet2Go successfully transforms the planning "chore" into an engaging game, with clear directions for future usability improvements.
 
 ## Discussion
-
-*(Max. 500 words)*
 
 **Incentives for Participation:**
 One of the core challenges in social computing is the "free rider" problem in collective action—everyone wants a plan, but nobody wants to plan it. Meet2Go addresses this by misaligning the cost of participation (low: just swipe) with the reward (high: a great group activity). By gamifying the input mechanism, we **provide an intrinsic incentive to participate**. The interface itself is the "sugar" that helps the "medicine" of decision-making go down, while providing its **value**(decision) without compromise.
@@ -142,19 +93,3 @@ We considered the privacy implications of "preference intensity." While users ca
 
 *   **Live Prototype:** https://meet2go.vercel.app/
 *   **Repository:** https://github.com/alaaeddine-ahriz/meet2go – The link works, we promise ;)
-
-## Individual Reflections
-
-### Alaaeddine AHRIZ
-For this project, I was responsible for the full-stack development of the prototype, from initial Figma design to final deployment. My concrete contributions included implementing the swipe-based voting system with Tinder-style card interactions, developing the results visualization and underlying consensus algorithm, and building the complete user authentication flow. I also handled the Progressive Web App configuration with Expo to ensure compatibility across iOS, Android, and Web. Although I had prior experience with React JS, this was my first time working with React Native, and I managed all backend integration with Supabase, including authentication, database schemas, and real-time subscriptions.
-
-Our teamwork was effective because roles were clearly defined according to each member’s strengths, and communication remained consistent through WhatsApp and frequent post-class sync-ups. Each member had ownership over specific features, which created a balanced workflow across design, research, and development. Using Git for both code and written reports significantly improved collaboration and version control. A key challenge arose when user expectations differed from what we initially envisioned, often preferring simpler features. We addressed this by maintaining continuous communication in our group chat, sharing feedback as soon as it appeared, and documenting our decisions directly in the codebase. This experience reinforced that over-communication is preferable to under-communication and that user feedback must guide development priorities.
-
-Through this project, I gained technical skills in component and system architecture design, Expo PWA configuration, and cross-platform development. I also learned to balance technical feasibility with user experience to deliver value efficiently. Most importantly, I gained end-to-end experience building and deploying a user-facing product and working within a social-interaction-driven platform.
-
-### Seungjae KIM
-I was mostly involved in the later part of the prototype (and final) development. From the initial voting page and the poll/question list, I focused on adding improvements such as removal and edits. I also identified and worked mostly on fixing various bugs and faults, from small issues as skipping duplicate, previous votes after adding a new option and the voting status showing incorrectly. Other bugs found are available on the issues page, including missing username when using social login and some compatibility problems. I also helped on the image generator, analyzing and pointing out which was the problem and how it should be fixed. I had prior experience with React, both Native and JS, but working with Supabase was fairly new and took some time to adjust.
-
-Since I was more familliar with classic Front/Backend design instead of using external services such as Supabase, having such integrations and exercising it like a standard SQL database was new. It was much faster not having to write code for every single repetitive thing such as user login, but I learned it came with the cost of added layer for problems.
-
-It was my first time working with all-foreign teammates, which meant I had a bit of difficulty being casual and communicating effectively at first. However, the working vibe became much friendly as time passed, and it was wonderful how the team covered each other when some of them were sick, or temporarily overloaded with other coursework. However, there were moments where more communication could have been made, like the final slide for example - I was oblivious the slides I was looking at would change in the next hour, when the only time I could practice was right now. It led to some wasted efforts.
