@@ -124,16 +124,19 @@ User comments focused primarily on **refinement opportunities**, indicating a st
 *(Max. 500 words)*
 
 **Incentives for Participation:**
-One of the core challenges in social computing is the "free rider" problem in collective action—everyone wants a plan, but nobody wants to plan it. Meet2Go addresses this by misaligning the cost of participation (low: just swipe) with the reward (high: a great group activity). By gamifying the input mechanism, we provide an intrinsic incentive to participate. The interface itself is the "sugar" that helps the "medicine" of decision-making go down.
+One of the core challenges in social computing is the "free rider" problem in collective action—everyone wants a plan, but nobody wants to plan it. Meet2Go addresses this by misaligning the cost of participation (low: just swipe) with the reward (high: a great group activity). By gamifying the input mechanism, we **provide an intrinsic incentive to participate**. The interface itself is the "sugar" that helps the "medicine" of decision-making go down, while providing its **value**(decision) without compromise.
 
 **Supporting Social Interaction & Conflict Resolution:**
-Social coordination is often hindered by the fear of social friction. In group chats, suggesting an idea can feel risky ("What if they hate it?"). Meet2Go decouples the suggestion from the judgment. Votes are aggregated, and while transparency is available, the primary view is the *consensus*, which shifts the focus from "User A vs. User B" to "Group vs. The Problem." This design supports pro-social interaction by bringing the group to a mathematical consensus that feels fair, rather than a political one dominated by the loudest voice.
+Social coordination is often hindered by the fear of social friction. In group chats, suggesting an idea can feel risky. Questions such as 'what if they hate it?' and 'has this been discussed before?' prevents genuine idea suggestions and further interactions.
+
+Meet2Go provides **anonymity** for the suggestions, while providing **identifiability** for the judgment. Votes are aggregated, and while transparency is available, the primary view is the *consensus*, which shifts the focus from "User A vs. User B" to "Group vs. Problem." This design supports pro-social interaction by *quickly* bringing the group to a logical **consensus that feels fair**, rather than a political one dominated by the loudest voice, or a half-baked compromise that turns out just as mediocre.
 
 **Quality Control & AI:**
 We integrated generative AI to visually represent options. This acts as a quality control mechanism for the *content* of the poll. A bare text option "Pizza" is less engaging than "Pizza" with an image that smells melted cheese. This ensures that all options are presented on an equal visual footing, reducing bias based on how well a user described their suggestion.
 
 **Privacy & Ethics:**
 We considered the privacy implications of "preference intensity." While users can see who voted for what to ensure trust (transparency), we deliberately avoided negative reinforcement mechanics (e.g., "downvoting" a person's idea). The "Doesn't Work" swipe is framed as a logistical constraint rather than a personal rejection, protecting the social fabric of the group.
+
 
 ## Prototype & Repository
 
