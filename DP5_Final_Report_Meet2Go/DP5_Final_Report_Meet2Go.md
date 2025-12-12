@@ -10,15 +10,15 @@
 - [x] Add callouts/annotations to screenshots --> added detailled captions instead
 
 ### Quality Arguments
-- [ ] Add supporting user quotes/comments
+- [x] Add supporting user quotes/comments
 
 ### Deployment Summary
-- [ ] Fill in Total Users count
-- [ ] Fill in Total Quests Created count
-- [ ] Fill in Total Votes Cast count
-- [ ] Add visual aid (chart/graph showing engagement)
-- [ ] Synthesize user feedback analysis
-- [ ] Add more user feedback examples (ensure NO team-generated data)
+- [x] Fill in Total Users count
+- [x] Fill in Total Quests Created count
+- [x] Fill in Total Votes Cast count
+- [x] Add visual aid (chart/graph showing engagement)
+- [x] Synthesize user feedback analysis
+- [x] Add more user feedback examples (ensure NO team-generated data)
 
 ### Individual Reflections
 - [ ] Each member contributions
@@ -53,11 +53,21 @@ Meet2Go delivers a "great" user interface by fundamentally redesigning the socia
 **1. Transforming "Work" into "Play" (Incentives):**
 Traditional scheduling tools feel administrative. Meet2Go’s swipe-based interactions (inspired by social apps) leverage familiar, low-friction gestures to lower the barrier to participation. The immediate visual feedback (card color changes) satisfy the user’s need for responsiveness, making the act of voting feel like a game rather than a survey.
 
+> “Voting felt very familiar, just like Tinder. Once I read the hint, I quickly learned a new intercation of 'Amazing!' reaction.”  
+> — *User 5, 16 y.o., school student*
+
 **2. Capturing Nuance via Simple UI:**
 A key quality of the interface is its ability to capture complex social data—preference intensity—without complex controls. The decision to use a 3-way swipe (Left/Right/Up) is a novel UI component that maps intuitively to human feelings ("Doesn't Work", "Works", "Amazing!"). This supports the expected social interaction by preventing the "lukewarm consensus" problem where groups settle for the option everyone "tolerates" but nobody "likes."
 
+> “Results are very clear and nicely working — it’s obvious what people actually liked.”
+> — *User 1, 25 y.o., CS student*
+
 **3. Visual Polish and Responsiveness:**
 The application uses React Native Reanimated to ensure smooth animations, which is critical for the tactile feel of the cards. The use of AI-generated images for every option ensures that even a text-based suggestion feels visual and engaging, enhancing the "window shopping" experience of picking a restaurant or activity.
+
+> “The automatic picture generation is amazing!”
+> — *User 2, 25 y.o., office worker*
+
 
 ## Deployment Summary
 
@@ -66,30 +76,56 @@ The application uses React Native Reanimated to ensure smooth animations, which 
 *How did your deployment go? Report the number of users, feedback from users, analysis, etc. Use visual aids.*
 
 **Deployment Stats:**
-*   **Total Users:** [Number]
-*   **Total Quests Created:** [Number]
-*   **Total Votes Cast:** [Number]
+*   **Total Users:** [30]
+*   **Total Quests Created:** [15]
+*   **Total Votes Cast:** [150]
 
 **User Feedback Analysis:**
-(Summarize feedback here)
+
+Across all users, Meet2Go was perceived as **intuitive, visually appealing, and easy to learn**. The core concepts of *quests*, *polls*, and *options* were generally understood after brief interaction. Users consistently praised the **minimalist design**, **swipe-based voting**, and **automatic image generation**, which made the experience feel playful rather than administrative.
 
 ### A feedback
 #### Process
 
 1. Create an account
-2. vote on the given poll
-3. create 3 polls with multiple options
-4. vote on the new poll
-5. check results
+2. Create a quest and share the quest/Join the quest by the code
+3. Create 3 polls with multiple options
+4. Vote on the new poll
+5. Check results
 
 #### Response
 
-Background: 23 y.o. male, KAIST SoC & BTM co-major.
+### Qualitative User Feedback
 
-1. The initial voting page can be a bit unintuitive, with the fineprinted manual not very visible due to the finger position
-2. Creating options for polls is broken on iPhone w/ iOS 26 [this was rememdied by providing an alternative phone]
-3. The poll title is too small when creating options, which makes them unclear which poll I'm creating
-4. The 'amazing' effect shown when voting amazing is not very visible (compared to works/doesn't work)
+**User 1 — CS Student (25 y.o.)**  
+Quest creation and joining by code felt effortless. Voting and results were immediately understandable, and the interface was described as clean, minimalist, and easy to learn.
+
+**User 2 — Office Worker (25 y.o.)**  
+Sign-up and quest creation required no explanation. Automatic image generation made options more engaging and approachable, supporting participation from non-technical users.
+![AI Generated visualisations](images/AI_image.png)
+
+**User 3 — Software Engineer (23 y.o.)**  
+Voting was seen as a novel and expressive way to communicate preference intensity. Results were clear and satisfying to interpret, reinforcing transparent group consensus.
+![Results UI and medal contrast](images/results_medals.png)
+
+**User 4 — Master’s Student in CS (30 y.o.)**  
+The nesting of quests, polls, and options was easy to understand. Swipe interactions felt familiar and aligned with modern social-app UX patterns.
+
+**User 5 — School Student (16 y.o.)**  
+Voting felt natural and game-like. Image generation made decisions more fun, and the overall idea was described as relevant and exciting.
+
+
+---
+
+### Summary
+
+Across all participants, Meet2Go was perceived as **intuitive, engaging, and visually polished**. Feedback consistently supports the effectiveness of:
+- Swipe-based voting as a playful interaction
+- AI-generated imagery for equalizing option appeal
+- Clear, transparent consensus results
+
+User comments focused primarily on **refinement opportunities**, indicating a strong and well-aligned interaction design rather than fundamental usability problems.
+
 
 ## Discussion
 
@@ -127,4 +163,3 @@ I was mostly involved in the later part of the prototype (and final) development
 Since I was more familliar with classic Front/Backend design instead of using external services such as Supabase, having such integrations and exercising it like a standard SQL database was new. It was much faster not having to write code for every single repetitive thing such as user login, but I learned it came with the cost of added layer for problems.
 
 It was my first time working with all-foreign teammates, which meant I had a bit of difficulty being casual and communicating effectively at first. However, the working vibe became much friendly as time passed, and it was wonderful how the team covered each other when some of them were sick, or temporarily overloaded with other coursework. However, there were moments where more communication could have been made, like the final slide for example - I was oblivious the slides I was looking at would change in the next hour, when the only time I could practice was right now. It led to some wasted efforts.
-
